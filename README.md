@@ -13,8 +13,8 @@ On installation, the `tika-app-1.4.jar` file will be downloaded from *Maven Cent
 ##Usage
 
 ```julia
-using Toro
-Toro.init()
+using Taro
+Taro.init()
 ```
 
 ##API
