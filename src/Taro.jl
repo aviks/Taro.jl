@@ -58,56 +58,35 @@ const CELL_TYPE_ERROR = 5;
 
 immutable ParseOptions{S <: ByteString, T <: ByteString}
     header::Bool
-    separator::Char
-    quotemark::Vector{Char}
-    decimal::Char
     nastrings::Vector{S}
     truestrings::Vector{S}
     falsestrings::Vector{S}
-    makefactors::Bool
     colnames::Vector{T}
     cleannames::Bool
     coltypes::Vector{Any}
-    allowcomments::Bool
-    commentmark::Char
-    ignorepadding::Bool
     skipstart::Int
     skiprows::Vector{Int}
     skipblanks::Bool
-    encoding::Symbol
-    allowescapes::Bool
 end
 
 function readxl(filename::String, sheet::String, range::String; 
 				   header::Bool = true,
-                   separator::Char = ',',
-                   quotemark::Vector{Char} = ['"'],
-                   decimal::Char = '.',
                    nastrings::Vector = ASCIIString["", "NA"],
                    truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
                    falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"],
-                   makefactors::Bool = false,
-                   nrows::Int = -1,
                    colnames::Vector = UTF8String[],
                    cleannames::Bool = false,
                    coltypes::Vector{Any} = Any[],
-                   allowcomments::Bool = false,
-                   commentmark::Char = '#',
-                   ignorepadding::Bool = true,
                    skipstart::Int = 0,
                    skiprows::Vector{Int} = Int[],
-                   skipblanks::Bool = true,
-                   encoding::Symbol = :utf8,
-                   allowescapes::Bool = false)
+                   skipblanks::Bool = true)
 
 		
 		# Set parsing options
-    o = ParseOptions(header, separator, quotemark, decimal,
+    o = ParseOptions(header, 
                      nastrings, truestrings, falsestrings,
-                     makefactors, colnames, cleannames, coltypes,
-                     allowcomments, commentmark, ignorepadding,
-                     skipstart, skiprows, skipblanks, encoding,
-                     allowescapes)
+                     colnames, cleannames, coltypes,
+                     skipstart, skiprows, skipblanks)
 
      r=r"([A-Za-z]*)(\d*):([A-Za-z]*)(\d*)"
      m=match(r, range)
@@ -124,7 +103,6 @@ function readxl(filename::String, sheet::String, range::String;
 end
 
 function readxl(filename::String, sheetname::String, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
-	println("sr: $startrow sc: $startcol er: $endrow ec: $endcol")
 	JavaCall.assertloaded()
 	File = @jvimport java.io.File
 	f=File((JString,), filename)
@@ -136,10 +114,23 @@ function readxl(filename::String, sheetname::String, startrow::Int, startcol::In
 
 	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
 	sheet = jcall(book, "getSheet", Sheet, (JString,), sheetname) 
-
+	cols = endcol-startcol+1
+	
+	if o.header
+		row = jcall(sheet, "getRow", Row, (jint,), startrow)
+		if !isnull(row)
+			resize!(o.colnames,cols)
+			for j in startcol:endcol 
+				cell = jcall(row, "getCell", Cell, (jint,), j)
+				if !isnull(cell)
+					o.colnames[j-startcol+1] = jcall(cell, "getStringCellValue", JString, (),)
+				end
+			end
+		end
+		startrow = startrow+1
+	end
 
 	rows = endrow-startrow +1
-	cols = endcol-startcol+1
 	columns = Array(Any, cols)
 	for j in startcol:endcol 
 		values = Array(Any, rows)
@@ -161,7 +152,16 @@ function readxl(filename::String, sheetname::String, startrow::Int, startcol::In
 			elseif celltype == CELL_TYPE_NUMERIC
 				values[i-startrow+1] = jcall(cell, "getNumericCellValue", jdouble, (),)
 			elseif celltype == CELL_TYPE_STRING
-				values[i-startrow+1] = jcall(cell, "getStringCellValue", JString, (),)
+				value = jcall(cell, "getStringCellValue", JString, (),)
+				if value in o.nastrings
+					missing[i-startrow+1]=true
+				elseif value in o.truestrings
+					values[i-startrow+1] = true
+				elseif value in o.falsestrings
+					values[i-startrow+1] = false 
+				else 
+					values[i-startrow+1] = value 
+				end
 			else 
 				warn("Unknown Cell Type")
 				missing[i-startrow+1]=true
