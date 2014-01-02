@@ -14,15 +14,15 @@ init() = JavaCall.init()
 
 function extract(filename::String)
 	JavaCall.assertloaded()
-	File = @jvimport java.io.File
+	File = @jimport java.io.File
 	f=File((JString,), filename)
-	FileInputStream = @jvimport java.io.FileInputStream
-	InputStream = @jvimport java.io.InputStream
+	FileInputStream = @jimport java.io.FileInputStream
+	InputStream = @jimport java.io.InputStream
 	is = FileInputStream((File,), f)
-	Metadata = @jvimport org.apache.tika.metadata.Metadata
-	BodyContentHandler = @jvimport org.apache.tika.sax.BodyContentHandler
-	AutoDetectParser = @jvimport org.apache.tika.parser.AutoDetectParser
-	Tika = @jvimport org.apache.tika.Tika
+	Metadata = @jimport org.apache.tika.metadata.Metadata
+	BodyContentHandler = @jimport org.apache.tika.sax.BodyContentHandler
+	AutoDetectParser = @jimport org.apache.tika.parser.AutoDetectParser
+	Tika = @jimport org.apache.tika.Tika
 	tika = Tika((),)
 	mimeType = jcall(tika, "detect",JString, (File,), f) 
 
@@ -31,9 +31,9 @@ function extract(filename::String)
 	parser=AutoDetectParser((),)
 
 	jcall(metadata, "set", Void, (JString, JString), "Content-Type", mimeType)
-	ParseContext = @jvimport org.apache.tika.parser.ParseContext
+	ParseContext = @jimport org.apache.tika.parser.ParseContext
 	pc = ParseContext((),)
-	ContentHandler = @jvimport org.xml.sax.ContentHandler
+	ContentHandler = @jimport org.xml.sax.ContentHandler
 	jcall(parser, "parse", Void, (InputStream, ContentHandler, Metadata, ParseContext), is, ch, metadata, pc)
 	nm = jcall(metadata, "names", Array{JString,1}, (),)
     nm = map(bytestring, nm)
@@ -104,13 +104,13 @@ end
 
 function readxl(filename::String, sheetname::String, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
 	JavaCall.assertloaded()
-	File = @jvimport java.io.File
+	File = @jimport java.io.File
 	f=File((JString,), filename)
-	WorkbookFactory = @jvimport org.apache.poi.ss.usermodel.WorkbookFactory
-	Workbook = @jvimport org.apache.poi.ss.usermodel.Workbook
-	Sheet = @jvimport org.apache.poi.ss.usermodel.Sheet
-	Row = @jvimport org.apache.poi.ss.usermodel.Row
-	Cell = @jvimport org.apache.poi.ss.usermodel.Cell
+	WorkbookFactory = @jimport org.apache.poi.ss.usermodel.WorkbookFactory
+	Workbook = @jimport org.apache.poi.ss.usermodel.Workbook
+	Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
+	Row = @jimport org.apache.poi.ss.usermodel.Row
+	Cell = @jimport org.apache.poi.ss.usermodel.Cell
 
 	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
 	sheet = jcall(book, "getSheet", Sheet, (JString,), sheetname) 
