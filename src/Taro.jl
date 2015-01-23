@@ -56,13 +56,12 @@ const CELL_TYPE_BLANK = 3;
 const CELL_TYPE_BOOLEAN = 4;
 const CELL_TYPE_ERROR = 5;
 
-immutable ParseOptions{S <: ByteString, T <: ByteString}
+immutable ParseOptions{S <: ByteString}
     header::Bool
     nastrings::Vector{S}
     truestrings::Vector{S}
     falsestrings::Vector{S}
-    colnames::Vector{T}
-    cleannames::Bool
+    colnames::Vector{Symbol}
     coltypes::Vector{Any}
     skipstart::Int
     skiprows::Vector{Int}
@@ -74,8 +73,7 @@ function readxl(filename::String, sheet::String, range::String;
                    nastrings::Vector = ASCIIString["", "NA"],
                    truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
                    falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"],
-                   colnames::Vector = UTF8String[],
-                   cleannames::Bool = false,
+                   colnames::Vector = Symbol[],
                    coltypes::Vector{Any} = Any[],
                    skipstart::Int = 0,
                    skiprows::Vector{Int} = Int[],
@@ -85,7 +83,7 @@ function readxl(filename::String, sheet::String, range::String;
 		# Set parsing options
     o = ParseOptions(header, 
                      nastrings, truestrings, falsestrings,
-                     colnames, cleannames, coltypes,
+                     colnames, coltypes,
                      skipstart, skiprows, skipblanks)
 
      r=r"([A-Za-z]*)(\d*):([A-Za-z]*)(\d*)"
@@ -123,7 +121,7 @@ function readxl(filename::String, sheetname::String, startrow::Int, startcol::In
 			for j in startcol:endcol 
 				cell = jcall(row, "getCell", Cell, (jint,), j)
 				if !isnull(cell)
-					o.colnames[j-startcol+1] = jcall(cell, "getStringCellValue", JString, (),)
+					o.colnames[j-startcol+1] = DataFrames.makeidentifier(jcall(cell, "getStringCellValue", JString, (),))
 				end
 			end
 		end
@@ -172,7 +170,7 @@ function readxl(filename::String, sheetname::String, startrow::Int, startcol::In
 
 	end
 	if isempty(o.colnames)
-        return DataFrame(columns, DataFrames.generate_column_names(cols))
+        return DataFrame(columns, DataFrames.gennames(cols))
     else
         return DataFrame(columns, o.colnames)
     end
