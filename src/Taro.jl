@@ -68,7 +68,10 @@ immutable ParseOptions{S <: ByteString}
     skipblanks::Bool
 end
 
-function readxl(filename::String, sheet::String, range::String; 
+#Cant use optional arguments since our API was already set with sheet as the second param.
+readxl(filename::String, range::String;  opts...) = readxl(filename, 0, range; opts...)
+
+function readxl(filename::String, sheet, range::String; 
 				   header::Bool = true,
                    nastrings::Vector = ASCIIString["", "NA"],
                    truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
@@ -100,7 +103,19 @@ function readxl(filename::String, sheet::String, range::String;
     readxl(filename, sheet, startrow, startcol, endrow, endcol, o)
 end
 
-function readxl(filename::String, sheetname::String, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
+function getSheet(book::JavaObject , sheetName::String) 
+    Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
+    jcall(book, "getSheet", Sheet, (JString,), sheetname) 
+end
+
+function getSheet(book::JavaObject , sheetNum::Integer) 
+    Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
+    jcall(book, "getSheetAt", Sheet, (jint,), sheetNum) 
+end
+
+
+
+function readxl(filename::String, sheetname, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
 	JavaCall.assertloaded()
 	File = @jimport java.io.File
 	f=File((JString,), filename)
@@ -112,9 +127,9 @@ function readxl(filename::String, sheetname::String, startrow::Int, startcol::In
 
 	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
     if isnull(book) ; error("Unable to load Excel file: $filename"); end
-	sheet = jcall(book, "getSheet", Sheet, (JString,), sheetname) 
-    if isnull(sheet); error ("Unable to load sheet: $sheetname in file: $filename"); end
-	cols = endcol-startcol+1
+	sheet = getSheet(book, sheetname)
+    if isnull(sheet); error ("Unable to load sheet: $sheetname in file: $filename"); end	
+    cols = endcol-startcol+1
 	
 	if o.header
 		row = jcall(sheet, "getRow", Row, (jint,), startrow)
