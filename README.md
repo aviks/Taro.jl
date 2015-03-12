@@ -19,14 +19,23 @@ Taro.init()
 
 ##API
 
+### Read Excel files 
 ```
-Taro.readxl(filename::String, sheetname::String, region::String; 
+Taro.readxl(filename::String, sheet, region::String; 
         header::Bool = true, nastrings::Vector = ASCIIString["", "NA"], 
         truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
         falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"], colnames::Vector = UTF8String[])
 ```
+The `sheet` parameter can be `String` in which case it is interpreted as the sheet name. Alteratively, it could be an `Integer` which would be (a `0-` based) sheet number. 
 
-The readxl function returns a dataframe from the contents of an MS Excel file. The sheet and region containing the data should be specified. By default, a header row is expected, which must consist only of strings. 
+The `sheet` parameter can be omitted, in which case the first sheet (index `0`) in the workbook is selected. 
+```
+Taro.readxl(filename::String, region::String; optional_config...)
+```
+
+The readxl function returns a dataframe from the contents of an MS Excel file. The sheet and region containing the data should be specified. By default, a header row is expected, which must consist only of strings. The `header` keyword argument should be set to `false` if no header is present in the data. 
+
+###Extract raw content from document files
 
 `Taro.extract(filename::String)`
 
