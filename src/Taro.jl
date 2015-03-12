@@ -111,7 +111,9 @@ function readxl(filename::String, sheetname::String, startrow::Int, startcol::In
 	Cell = @jimport org.apache.poi.ss.usermodel.Cell
 
 	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
+    if isnull(book) ; error("Unable to load Excel file: $filename"); end
 	sheet = jcall(book, "getSheet", Sheet, (JString,), sheetname) 
+    if isnull(sheet); error ("Unable to load sheet: $sheetname in file: $filename"); end
 	cols = endcol-startcol+1
 	
 	if o.header
