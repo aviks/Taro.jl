@@ -105,7 +105,7 @@ end
 
 function getSheet(book::JavaObject , sheetName::String) 
     Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
-    jcall(book, "getSheet", Sheet, (JString,), sheetname) 
+    jcall(book, "getSheet", Sheet, (JString,), sheetName) 
 end
 
 function getSheet(book::JavaObject , sheetNum::Integer) 
