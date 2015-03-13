@@ -1,15 +1,8 @@
-language: cpp
-compiler:
-  - clang
+language: julia
+os:
+- osx
+- linux
+julia:
+- release
 notifications:
-  email: false
-before_install:
-  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
-  - sudo add-apt-repository ppa:staticfloat/julianightlies -y
-  - sudo apt-get update -qq -y
-  - sudo apt-get install libpcre3-dev julia -y
-script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Taro"))`); Pkg.pin("Taro"); Pkg.resolve()'
-  - julia -e 'Pkg.build("Taro")'
-  - julia -e 'using Taro; @assert isdefined(:Taro); @assert typeof(Taro) === Module'
-  - julia test/runtests.jl
+email: false
