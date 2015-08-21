@@ -1,1 +1,4 @@
-deps/tika-app-1.4.jar
+deps/tika-app-1.10.jar
+deps/fop-2.0
+deps/fop-2.0-bin.tar.gz
+test/simple.pdf

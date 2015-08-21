@@ -4,9 +4,30 @@ using JavaCall
 using DataFrames
 using DataArrays
 
-tika_jar = joinpath(Pkg.dir(), "Taro", "deps", "tika-app-1.4.jar")
+tika_jar = joinpath(Pkg.dir(), "Taro", "deps", "tika-app-1.10.jar")
+avalon_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "avalon-framework-4.2.0.jar")
+batik_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "batik-all-1.8.jar")
+commons_io_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "commons-io-1.3.1.jar")
+commons_logging_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "commons-logging-1.0.4.jar")
+fontbox_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "fontbox-1.8.5.jar")
+serializer_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "serializer-2.7.1.jar")
+xalan_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "xalan-2.7.1.jar")
+xerces_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "xercesImpl-2.7.1.jar")
+xml_apis_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "xml-apis-1.3.04.jar")
+xml_apis_ext_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "xml-apis-ext-1.3.04.jar")
+xmlgraphics_common_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "xmlgraphics-commons-2.0.1.jar")
+
+fop_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "build", "fop.jar")
 
 JavaCall.addClassPath(tika_jar)
+JavaCall.addClassPath(avalon_jar)
+JavaCall.addClassPath(commons_io_jar)
+JavaCall.addClassPath(fontbox_jar)
+JavaCall.addClassPath(batik_jar)
+JavaCall.addClassPath(xmlgraphics_common_jar)
+JavaCall.addClassPath(fop_jar)
+
+
 JavaCall.addOpts("-Xmx256M")
 JavaCall.addOpts("-Djava.awt.headless=true")
 
@@ -202,6 +223,7 @@ function colnum(col::String)
 	return r-1
 end
 
+include("fop.jl")
 
 
 end # module

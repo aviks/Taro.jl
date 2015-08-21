@@ -1,8 +1,8 @@
 # Taro
 
-Taro is a utility belt of functions to work with document files in Julia. It uses [Apache Tika](http://tika.apache.org/) and [Apache POI](http://poi.apache.org) (via [JavaCall](http://aviks.github.io/JavaCall.jl/)) to process the files. Current functionality includes the ability to read a DataFrame off an Excel sheet and the ability to extract text and metadata from a wide variety of document formats. 
+Taro is a utility belt of functions to work with document files in Julia. It uses [Apache Tika](http://tika.apache.org/) and [Apache POI](http://poi.apache.org) (via [JavaCall](http://aviks.github.io/JavaCall.jl/)) to process the files. Current functionality includes the ability to read a DataFrame off an Excel sheet and the ability to extract text and metadata from a wide variety of document formats. It also uses [Apache FOP](https://xmlgraphics.apache.org/fop/) to generate PDF from `XSL-FO` files. 
 
-Taro currently supports only the released version of Julia, `v0.3`. This is due to the fact that some of its dependencies (such as DataFrames) currently only support `v0.3`. Taro will be converted to support Julia `v0.4` once all its dependencies do so. 
+Taro currently supports only the released version of Julia, `v0.3`. Taro will be converted to support Julia `v0.4` once all its dependencies do so. 
 
 ##Installation
 
@@ -42,6 +42,16 @@ The readxl function returns a dataframe from the contents of an MS Excel file. T
 `Taro.extract(filename::String)`
 
 The extract function retrieves document metadata and the body text of a document. It returns a Dict of metadata name value pairs, and a String with the text of the document. Supported formats include MS Office, Open Office and PDF documents. 
+
+###Generate PDF files using FOP
+
+Taro has an interface to the `Apache FOP` project. This allows you to generate professional quality PDF files from `XSL-FO` layout definition templates. 
+Please see the [FOP Documentation](https://xmlgraphics.apache.org/fop/) for details. 
+
+`Taro.fo(inputFoFileName::String, outputPDFFileName::String)`
+
+Convert the input `fo` file to a PDF.
+
 
 ##Examples
 
@@ -103,5 +113,6 @@ UTF8String (constructor with 1 method)
 julia> length(body)
 2966
 ```
+
 
 [![Build Status](https://travis-ci.org/aviks/Taro.jl.png)](https://travis-ci.org/aviks/Taro.jl)
