@@ -5,12 +5,12 @@ tdir = joinpath(Pkg.dir("Taro"),"test")
 Taro.init()
 
 meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.docx"))")
-@test length(names(meta)) > 5
+@test length(keys(meta)) > 40
 @test length(body)>2900
 
 
 meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.pdf"))")
-@test length(names(meta)) > 5
+@test length(keys(meta)) > 30
 @test length(body)>3000
 
 df=Taro.readxl("$(joinpath(tdir,"df-test.xlsx"))","Sheet1", "B2:F10")

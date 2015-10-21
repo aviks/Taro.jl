@@ -3,6 +3,7 @@ module Taro
 using JavaCall
 using DataFrames
 using DataArrays
+using Compat
 
 tika_jar = joinpath(Pkg.dir(), "Taro", "deps", "tika-app-1.10.jar")
 avalon_jar = joinpath(Pkg.dir(), "Taro", "deps", "fop-2.0", "lib", "avalon-framework-4.2.0.jar")
@@ -33,7 +34,7 @@ JavaCall.addOpts("-Djava.awt.headless=true")
 
 init() = JavaCall.init()
 
-function extract(filename::String)
+function extract(filename::AbstractString)
 	JavaCall.assertloaded()
 	File = @jimport java.io.File
 	f=File((JString,), filename)
@@ -58,14 +59,14 @@ function extract(filename::String)
 	jcall(parser, "parse", Void, (InputStream, ContentHandler, Metadata, ParseContext), is, ch, metadata, pc)
 	nm = jcall(metadata, "names", Array{JString,1}, (),)
     nm = map(bytestring, nm)
-    vs=Array(String, length(nm))
+    vs=Array(AbstractString, length(nm))
     for i in 1:length(nm)
         vs[i] = jcall(metadata, "get", JString, (JString,), nm[i])
     end
 
     body = jcall(ch, "toString", JString, (),)
 
-    return Dict(nm, vs) , body
+    return Dict(zip(nm, vs)) , body
 
 end
 
@@ -90,9 +91,9 @@ immutable ParseOptions{S <: ByteString}
 end
 
 #Cant use optional arguments since our API was already set with sheet as the second param.
-readxl(filename::String, range::String;  opts...) = readxl(filename, 0, range; opts...)
+readxl(filename::AbstractString, range::AbstractString;  opts...) = readxl(filename, 0, range; opts...)
 
-function readxl(filename::String, sheet, range::String; 
+function readxl(filename::AbstractString, sheet, range::AbstractString; 
 				   header::Bool = true,
                    nastrings::Vector = ASCIIString["", "NA"],
                    truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
@@ -112,9 +113,9 @@ function readxl(filename::String, sheet, range::String;
 
      r=r"([A-Za-z]*)(\d*):([A-Za-z]*)(\d*)"
      m=match(r, range)
-     startrow=int(m.captures[2])-1
+     startrow=parse(Int, m.captures[2])-1
      startcol=colnum(m.captures[1])
-     endrow=int(m.captures[4])-1
+     endrow=parse(Int, m.captures[4])-1
      endcol=colnum(m.captures[3])
 
      if (startrow > endrow ) || (startcol>endcol)
@@ -124,7 +125,7 @@ function readxl(filename::String, sheet, range::String;
     readxl(filename, sheet, startrow, startcol, endrow, endcol, o)
 end
 
-function getSheet(book::JavaObject , sheetName::String) 
+function getSheet(book::JavaObject , sheetName::AbstractString) 
     Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
     jcall(book, "getSheet", Sheet, (JString,), sheetName) 
 end
@@ -136,7 +137,7 @@ end
 
 
 
-function readxl(filename::String, sheetname, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
+function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
 	JavaCall.assertloaded()
 	File = @jimport java.io.File
 	f=File((JString,), filename)
@@ -149,7 +150,7 @@ function readxl(filename::String, sheetname, startrow::Int, startcol::Int, endro
 	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
     if isnull(book) ; error("Unable to load Excel file: $filename"); end
 	sheet = getSheet(book, sheetname)
-    if isnull(sheet); error ("Unable to load sheet: $sheetname in file: $filename"); end	
+    if isnull(sheet); error("Unable to load sheet: $sheetname in file: $filename"); end	
     cols = endcol-startcol+1
 	
 	if o.header
@@ -214,7 +215,7 @@ function readxl(filename::String, sheetname, startrow::Int, startcol::Int, endro
     end
 end
 
-function colnum(col::String)
+function colnum(col::AbstractString)
 	cl=uppercase(col)
 	r=0
 	for c in cl

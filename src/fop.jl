@@ -1,6 +1,6 @@
 
 
-function fo(input::String, output::String)
+function fo(input::AbstractString, output::AbstractString)
 
     FopFactory = @jimport org.apache.fop.apps.FopFactory
     Fop = @jimport org.apache.fop.apps.Fop
