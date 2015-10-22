@@ -2,7 +2,13 @@
 
 Taro is a utility belt of functions to work with document files in Julia. It uses [Apache Tika](http://tika.apache.org/) and [Apache POI](http://poi.apache.org) (via [JavaCall](http://aviks.github.io/JavaCall.jl/)) to process the files. Current functionality includes the ability to read a DataFrame off an Excel sheet and the ability to extract text and metadata from a wide variety of document formats. It also uses [Apache FOP](https://xmlgraphics.apache.org/fop/) to generate PDF from `XSL-FO` files. 
 
-Taro currently supports only the released version of Julia, `v0.3`. Taro will be converted to support Julia `v0.4` once all its dependencies do so. 
+[![Build Status](https://travis-ci.org/aviks/JavaCall.jl.png)](https://travis-ci.org/aviks/Taro.jl)
+
+[![Taro](http://pkg.julialang.org/badges/Taro_0.3.svg)](http://pkg.julialang.org/?pkg=Taro&ver=release)
+
+[![Taro](http://pkg.julialang.org/badges/Taro_0.4.svg)](http://pkg.julialang.org/?pkg=Taro&ver=nightly)
+
+
 
 ##Installation
 
