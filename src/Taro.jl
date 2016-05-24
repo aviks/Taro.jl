@@ -46,7 +46,7 @@ function extract(filename::AbstractString)
 	AutoDetectParser = @jimport org.apache.tika.parser.AutoDetectParser
 	Tika = @jimport org.apache.tika.Tika
 	tika = Tika((),)
-	mimeType = jcall(tika, "detect",JString, (File,), f) 
+	mimeType = jcall(tika, "detect",JString, (File,), f)
 
 	metadata=Metadata((),)
 	ch=BodyContentHandler((),)
@@ -93,7 +93,7 @@ end
 #Cant use optional arguments since our API was already set with sheet as the second param.
 readxl(filename::AbstractString, range::AbstractString;  opts...) = readxl(filename, 0, range; opts...)
 
-function readxl(filename::AbstractString, sheet, range::AbstractString; 
+function readxl(filename::AbstractString, sheet, range::AbstractString;
 				   header::Bool = true,
                    nastrings::Vector = ASCIIString["", "NA"],
                    truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
@@ -104,9 +104,9 @@ function readxl(filename::AbstractString, sheet, range::AbstractString;
                    skiprows::Vector{Int} = Int[],
                    skipblanks::Bool = true)
 
-		
+
 		# Set parsing options
-    o = ParseOptions(header, 
+    o = ParseOptions(header,
                      nastrings, truestrings, falsestrings,
                      colnames, coltypes,
                      skipstart, skiprows, skipblanks)
@@ -125,14 +125,14 @@ function readxl(filename::AbstractString, sheet, range::AbstractString;
     readxl(filename, sheet, startrow, startcol, endrow, endcol, o)
 end
 
-function getSheet(book::JavaObject , sheetName::AbstractString) 
+function getSheet(book::JavaObject , sheetName::AbstractString)
     Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
-    jcall(book, "getSheet", Sheet, (JString,), sheetName) 
+    jcall(book, "getSheet", Sheet, (JString,), sheetName)
 end
 
-function getSheet(book::JavaObject , sheetNum::Integer) 
+function getSheet(book::JavaObject , sheetNum::Integer)
     Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
-    jcall(book, "getSheetAt", Sheet, (jint,), sheetNum) 
+    jcall(book, "getSheetAt", Sheet, (jint,), sheetNum)
 end
 
 
@@ -150,31 +150,36 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
     if isnull(book) ; error("Unable to load Excel file: $filename"); end
 	sheet = getSheet(book, sheetname)
-    if isnull(sheet); error("Unable to load sheet: $sheetname in file: $filename"); end	
+    if isnull(sheet); error("Unable to load sheet: $sheetname in file: $filename"); end
     cols = endcol-startcol+1
-	
+
 	if o.header
-		row = jcall(sheet, "getRow", Row, (jint,), startrow)
-		if !isnull(row)
-			resize!(o.colnames,cols)
-			for j in startcol:endcol 
-				cell = jcall(row, "getCell", Cell, (jint,), j)
-				if !isnull(cell)
-					o.colnames[j-startcol+1] = DataFrames.makeidentifier(jcall(cell, "getStringCellValue", JString, (),))
+		try
+			row = jcall(sheet, "getRow", Row, (jint,), startrow)
+			if !isnull(row)
+				resize!(o.colnames,cols)
+				for j in startcol:endcol
+					cell = jcall(row, "getCell", Cell, (jint,), j)
+					if !isnull(cell)
+						o.colnames[j-startcol+1] = DataFrames.makeidentifier(jcall(cell, "getStringCellValue", JString, (),))
+					end
 				end
 			end
+			startrow = startrow+1
+		catch
+			warn("Tried to read column headers, but failed. Set 'headers=false' if you don't have headers")
+			resize!(o.colnames, 0)
 		end
-		startrow = startrow+1
 	end
 
 	rows = endrow-startrow +1
 	columns = Array(Any, cols)
-	for j in startcol:endcol 
+	for j in startcol:endcol
 		values = Array(Any, rows)
 		missing = falses(rows)
 		for i in startrow:endrow
 			row = jcall(sheet, "getRow", Row, (jint,), i)
-			if isnull(row); missing[i-startrow+1]=true ; continue; end 
+			if isnull(row); missing[i-startrow+1]=true ; continue; end
 			cell = jcall(row, "getCell", Cell, (jint,), j)
 			if isnull(cell); missing[i-startrow+1]=true ; continue; end
 			celltype = jcall(cell, "getCellType", jint, (),)
@@ -183,9 +188,9 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 			end
 
 			if celltype == CELL_TYPE_BLANK || celltype == CELL_TYPE_ERROR
-				missing[i-startrow+1]=true 
+				missing[i-startrow+1]=true
 			elseif celltype == CELL_TYPE_BOOLEAN
-				values[i-startrow+1] = (jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE) 
+				values[i-startrow+1] = (jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE)
 			elseif celltype == CELL_TYPE_NUMERIC
 				values[i-startrow+1] = jcall(cell, "getNumericCellValue", jdouble, (),)
 			elseif celltype == CELL_TYPE_STRING
@@ -195,11 +200,11 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 				elseif value in o.truestrings
 					values[i-startrow+1] = true
 				elseif value in o.falsestrings
-					values[i-startrow+1] = false 
-				else 
-					values[i-startrow+1] = value 
+					values[i-startrow+1] = false
+				else
+					values[i-startrow+1] = value
 				end
-			else 
+			else
 				warn("Unknown Cell Type")
 				missing[i-startrow+1]=true
 			end
