@@ -2,3 +2,4 @@ deps/tika-app-1.10.jar
 deps/fop-2.0
 deps/fop-2.0-bin.tar.gz
 test/simple.pdf
+.DS_Store
