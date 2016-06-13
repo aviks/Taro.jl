@@ -1,11 +1,22 @@
 #Routines related to reading and writing Excel files uing Apache POI
 
+export Workbook, getSheet, createSheet, getRow, createRow, getCell, createCell,
+    getExcelDate, fromExcelDate, getCellType, isCellDateFormatted, setCellValue,
+    getCellValue
+
 const CELL_TYPE_NUMERIC = 0;
 const CELL_TYPE_STRING = 1;
 const CELL_TYPE_FORMULA = 2;
 const CELL_TYPE_BLANK = 3;
 const CELL_TYPE_BOOLEAN = 4;
 const CELL_TYPE_ERROR = 5;
+
+typealias Workbook  JavaObject{symbol("org.apache.poi.ss.usermodel.Workbook")}
+typealias Sheet  JavaObject{symbol("org.apache.poi.ss.usermodel.Sheet")}
+typealias Row  JavaObject{symbol("org.apache.poi.ss.usermodel.Row")}
+typealias Cell  JavaObject{symbol("org.apache.poi.ss.usermodel.Cell")}
+
+jFile = @jimport java.io.File
 
 immutable ParseOptions{S <: ByteString}
     header::Bool
@@ -54,30 +65,13 @@ function readxl(filename::AbstractString, sheet, range::AbstractString;
     readxl(filename, sheet, startrow, startcol, endrow, endcol, o)
 end
 
-function getSheet(book::JavaObject , sheetName::AbstractString)
-    Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
-    jcall(book, "getSheet", Sheet, (JString,), sheetName)
-end
-
-function getSheet(book::JavaObject , sheetNum::Integer)
-    Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
-    jcall(book, "getSheetAt", Sheet, (jint,), sheetNum)
-end
-
-
+getSheet(book::JavaObject , sheetName::AbstractString) = jcall(book, "getSheet", Sheet, (JString,), sheetName)
+getSheet(book::JavaObject , sheetNum::Integer) = jcall(book, "getSheetAt", Sheet, (jint,), sheetNum)
+getSheetAt(book::Workbook, sheetNum::Integer) = getSheet(book, sheetNum)
 
 function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
 	JavaCall.assertloaded()
-	File = @jimport java.io.File
-	f=File((JString,), filename)
-	WorkbookFactory = @jimport org.apache.poi.ss.usermodel.WorkbookFactory
-	Workbook = @jimport org.apache.poi.ss.usermodel.Workbook
-	Sheet = @jimport org.apache.poi.ss.usermodel.Sheet
-	Row = @jimport org.apache.poi.ss.usermodel.Row
-	Cell = @jimport org.apache.poi.ss.usermodel.Cell
-
-	book = jcall(WorkbookFactory, "create", Workbook, (File,), f)
-    if isnull(book) ; error("Unable to load Excel file: $filename"); end
+    book = Workbook(filename)
 	sheet = getSheet(book, sheetname)
     if isnull(sheet); error("Unable to load sheet: $sheetname in file: $filename"); end
     cols = endcol-startcol+1
@@ -96,7 +90,7 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 			end
 			startrow = startrow+1
 		catch
-			warn("Tried to read column headers, but failed. Set 'headers=false' if you don't have headers")
+			warn("Tried to read column headers, but failed. Set 'headers=false' if you do not have headers")
 			resize!(o.colnames, 0)
 		end
 	end
@@ -107,37 +101,21 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 		values = Array(Any, rows)
 		missing = falses(rows)
 		for i in startrow:endrow
-			row = jcall(sheet, "getRow", Row, (jint,), i)
+			row = getRow(sheet, i)
 			if isnull(row); missing[i-startrow+1]=true ; continue; end
-			cell = jcall(row, "getCell", Cell, (jint,), j)
+			cell = getCell(row, j)
 			if isnull(cell); missing[i-startrow+1]=true ; continue; end
-			celltype = jcall(cell, "getCellType", jint, (),)
-			if celltype == CELL_TYPE_FORMULA
-				celltype = jcall(cell, "getCachedFormulaResultType", jint, (),)
-			end
 
-			if celltype == CELL_TYPE_BLANK || celltype == CELL_TYPE_ERROR
+            value = getCellValue(cell)
+			if value == nothing || value in o.nastrings
 				missing[i-startrow+1]=true
-			elseif celltype == CELL_TYPE_BOOLEAN
-				values[i-startrow+1] = (jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE)
-			elseif celltype == CELL_TYPE_NUMERIC
-				values[i-startrow+1] = jcall(cell, "getNumericCellValue", jdouble, (),)
-			elseif celltype == CELL_TYPE_STRING
-				value = jcall(cell, "getStringCellValue", JString, (),)
-				if value in o.nastrings
-					missing[i-startrow+1]=true
-				elseif value in o.truestrings
-					values[i-startrow+1] = true
-				elseif value in o.falsestrings
-					values[i-startrow+1] = false
-				else
-					values[i-startrow+1] = value
-				end
+			elseif value in o.truestrings
+				values[i-startrow+1] = true
+			elseif value in o.falsestrings
+				values[i-startrow+1] = false
 			else
-				warn("Unknown Cell Type")
-				missing[i-startrow+1]=true
+				values[i-startrow+1] = value
 			end
-
 		end
 		columns[j-startcol+1] = DataArray(values, missing)
 
@@ -157,3 +135,127 @@ function colnum(col::AbstractString)
 	end
 	return r-1
 end
+
+function Workbook(filename::AbstractString)
+	f=jFile((JString,), filename)
+	WorkbookFactory = @jimport org.apache.poi.ss.usermodel.WorkbookFactory
+	book = jcall(WorkbookFactory, "create", Workbook, (jFile,), f)
+    if isnull(book) ; error("Unable to load Excel file: $filename"); end
+    return book
+end
+
+function Workbook(x::Bool=true)
+    local w
+    if x
+        w = @jimport(org.apache.poi.xssf.usermodel.XSSFWorkbook)(())
+    else
+        w = @jimport(org.apache.poi.hssf.usermodel.HSSFWorkbook)(())
+    end
+    return convert(Workbook, w)
+end
+
+createSheet(w::Workbook, s::AbstractString) = jcall(w, "createSheet", Sheet, (JString,), s)
+createRow(s::Sheet, r::Integer) = jcall(s, "createRow", Row, (jint,), r)
+createCell(r::Row, c::Integer) = jcall(r, "createCell", Cell, (jint,), c)
+getCell(row::Row, c::Integer) = jcall(row, "getCell", Cell, (jint,), c)
+getRow(sheet::Sheet, r::Integer) = jcall(sheet, "getRow", Row, (jint,), r)
+getCellType(cell::Cell) = jcall(cell, "getCellType", jint, (),)
+getCachedFormulaResultType(cell::Cell) = jcall(cell, "getCachedFormulaResultType", jint, (),)
+getBooleanCellValue(cell::Cell) = jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE
+getNumericCellValue(cell::Cell) = jcall(cell, "getNumericCellValue", jdouble, (),)
+getStringCellValue(cell::Cell) = jcall(cell, "getStringCellValue", JString, (),)
+
+function getCellValue(cell::Cell)
+    celltype = getCellType(cell)
+    if celltype == CELL_TYPE_FORMULA
+        celltype = getCachedFormulaResultType(cell)
+    end
+    if celltype == CELL_TYPE_BLANK || celltype == CELL_TYPE_ERROR
+        return nothing
+    elseif celltype == CELL_TYPE_BOOLEAN
+        return  getBooleanCellValue(cell)
+    elseif celltype == CELL_TYPE_NUMERIC
+        return getNumericCellValue(cell)
+    elseif celltype == CELL_TYPE_STRING
+        return getStringCellValue(cell)
+    else
+        warn("Unknown Cell Type")
+        return nothing
+    end
+end
+
+function Base.write(filename::AbstractString, w::Workbook)
+    fos = @jimport(java.io.FileOutputStream)((JString,), filename)
+    jcall(w, "write", Void, (@jimport(java.io.OutputStream),), fos)
+    jcall(fos, "close", Void,())
+end
+
+setCellValue(c::Cell, s::AbstractString) = jcall(c, "setCellValue", Void, (JString,), s)
+setCellValue(c::Cell, n::Real) = jcall(c, "setCellValue", Void, (jdouble,), n)
+setCellValue(c::Cell, d::Union{Date, DateTime}) = jcall(c, "setCellValue", Void, (jdouble, ), getExcelDate(d))
+
+
+### Excel Date related functions
+global const SECONDS_PER_MINUTE = 60
+global const MINUTES_PER_HOUR = 60
+global const HOURS_PER_DAY = 24
+global const SECONDS_PER_DAY = (HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE)
+global const DAY_MILLISECONDS = SECONDS_PER_DAY * 1000
+
+"""
+Convert an Excel style date to a Julia DateTime object
+   Excel stores dates and times as  a floating point number
+   representing the fractional days since 1/1/1900 (or 1/1/1904)
+"""
+function fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
+      wholeDays = floor(Int, date)
+      millisInDay = round(Int, (date-wholeDays)*DAY_MILLISECONDS)
+      startYear = 1900
+      dayAdjust = -1 #Excel thinks 2/29/1900 is a valid date, which it isn't
+      if (use1904windowing)
+        startYear = 1904
+        dayAdjust = 1 #// 1904 date windowing uses 1/2/1904 as the first day
+      elseif (wholeDays < 61)
+        dayAdjust = 0
+      end
+
+      d = DateTime(startYear, 1, 1)
+      d = d+Dates.Day(wholeDays + dayAdjust - 1)
+      if roundtoSeconds
+        millisInDay = round(Int, millisInDay/1000)*1000
+      end
+      d = d + Dates.Millisecond(millisInDay)
+      return d
+end
+
+"""
+Convert a Julia DateTime object into an Excel Date.
+  Excel stores dates and times as  a floating point number
+  representing the fractional days since 1/1/1900 (or 1/1/1904)
+"""
+function getExcelDate(date::DateTime, use1904windowing::Bool=false)  #->Float64
+        if (!use1904windowing && Dates.year(date) < 1900)  || (use1904windowing && Dates.year(date) < 1904)
+            error("Invalid Date -- cannot convert to excel")
+        end
+
+        fraction = (((Dates.hour(date) * 60
+                             + Dates.minute(date)
+                            ) * 60 + Dates.second(date)
+                           ) * 1000 + Dates.millisecond(date)
+                          ) / DAY_MILLISECONDS;
+        dayStart = DateTime(Dates.year(date), Dates.month(date), Dates.day(date))
+        yearStart = use1904windowing?1904:1900
+        value = Int64(Dates.Day(dayStart - DateTime(yearStart, 1, 1))) + 1
+
+        if (!use1904windowing && value >= 60)
+            value+=1
+        elseif (use1904windowing)
+            value-=1;
+        end
+
+        return value+fraction
+end
+getExcelDate(date::Date, use1904windowing::Bool=false) = getExcelDate(DateTime(date), use1904windowing)
+isCellDateFormatted(cell::Cell) =
+     jcall(@jimport(org.apache.poi.ss.usermodel.DateUtil), "isCellDateFormatted", jboolean, (Cell,), cell) ==
+         JavaCall.JNI_TRUE

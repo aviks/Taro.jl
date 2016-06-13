@@ -1,6 +1,6 @@
 # Taro
 
-Taro is a utility belt of functions to work with document files in Julia. It uses [Apache Tika](http://tika.apache.org/) and [Apache POI](http://poi.apache.org) (via [JavaCall](http://aviks.github.io/JavaCall.jl/)) to process the files. Current functionality includes the ability to read a DataFrame off an Excel sheet and the ability to extract text and metadata from a wide variety of document formats. It also uses [Apache FOP](https://xmlgraphics.apache.org/fop/) to generate PDF from `XSL-FO` files. 
+Taro is a utility belt of functions to work with document files in Julia. It uses [Apache Tika](http://tika.apache.org/) and [Apache POI](http://poi.apache.org) (via [JavaCall](http://aviks.github.io/JavaCall.jl/)) to process the files. Current functionality includes the ability to read a DataFrame off an Excel sheet and the ability to extract text and metadata from a wide variety of document formats. It also uses [Apache FOP](https://xmlgraphics.apache.org/fop/) to generate PDF from `XSL-FO` files.
 
 [![Build Status](https://travis-ci.org/aviks/JavaCall.jl.png)](https://travis-ci.org/aviks/Taro.jl)
 
@@ -27,32 +27,67 @@ Taro.init()
 
 ##API
 
-### Read Excel files 
+### Read Excel files into a DataFrame
 ```
-Taro.readxl(filename::String, sheet, region::String; 
-        header::Bool = true, nastrings::Vector = ASCIIString["", "NA"], 
+Taro.readxl(filename::String, sheet, region::String;
+        header::Bool = true, nastrings::Vector = ASCIIString["", "NA"],
         truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
         falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"], colnames::Vector = UTF8String[])
 ```
-The `sheet` parameter can be `String` in which case it is interpreted as the sheet name. Alteratively, it could be an `Integer` which would be (a `0-` based) sheet number. 
+The `sheet` parameter can be `String` in which case it is interpreted as the sheet name. Alteratively, it could be an `Integer` which would be (a `0-` based) sheet number.
 
-The `sheet` parameter can be omitted, in which case the first sheet (index `0`) in the workbook is selected. 
+The `sheet` parameter can be omitted, in which case the first sheet (index `0`) in the workbook is selected.
 ```
 Taro.readxl(filename::String, region::String; optional_config...)
 ```
 
-The readxl function returns a dataframe from the contents of an MS Excel file. The sheet and region containing the data should be specified. By default, a header row is expected, which must consist only of strings. The `header` keyword argument should be set to `false` if no header is present in the data. 
+The readxl function returns a dataframe from the contents of an MS Excel file. The sheet and region containing the data should be specified. By default, a header row is expected, which must consist only of strings. The `header` keyword argument should be set to `false` if no header is present in the data.
+
+### API to read and write Excel files
+
+The `readxl` function above is a simple, high level method to read tabular data from Excel files into
+a Julia DataFrames. For more control over reading files cell by cell, and for creating or modifyting  excel files,  this package exposes functions to read, create and write workbooks, sheets, rows and cells.
+The functions are modelled on the underlying POI API, which in turn is based
+
+```julia
+t=now()
+w=Workbook()
+s=createSheet(w, "runtests")
+r=createRow(s, 1)
+c=createCell(r, 1)
+setCellValue(c, "A String")
+c=createCell(r, 2)
+setCellValue(c, 25)
+c=createCell(r, 3)
+setCellValue(c, 2.5)
+c=createCell(r, 4)
+setCellValue(c, t)
+write(Pkg.dir("Taro", "test", "write-tests.xlsx"), w)
+
+#read the file we just wrote
+w2=Workbook(Pkg.dir("Taro", "test", "write-tests.xlsx"))
+s2 = getSheet(w2, "runtests")
+r2 = getRow(s2, 1)
+c2 = getCell(r2, 1)
+@assert getCellValue(c2) == "A String"
+c2 = getCell(r2, 2)
+@assert getCellValue(c2) == 25
+c2 = getCell(r2, 3)
+@assert getCellValue(c2) == 2.5
+c2 = getCell(r2, 4)
+@assert fromExcelDate(getCellValue(c2)) == t
+```
 
 ###Extract raw content from document files
 
 `Taro.extract(filename::String)`
 
-The extract function retrieves document metadata and the body text of a document. It returns a Dict of metadata name value pairs, and a String with the text of the document. Supported formats include MS Office, Open Office and PDF documents. 
+The extract function retrieves document metadata and the body text of a document. It returns a Dict of metadata name value pairs, and a String with the text of the document. Supported formats include MS Office, Open Office and PDF documents.
 
 ###Generate PDF files using FOP
 
-Taro has an interface to the `Apache FOP` project. This allows you to generate professional quality PDF files from `XSL-FO` layout definition templates. 
-Please see the [FOP Documentation](https://xmlgraphics.apache.org/fop/) for details. 
+Taro has an interface to the `Apache FOP` project. This allows you to generate professional quality PDF files from `XSL-FO` layout definition templates.
+Please see the [FOP Documentation](https://xmlgraphics.apache.org/fop/) for details.
 
 `Taro.fo(inputFoFileName::String, outputPDFFileName::String)`
 
