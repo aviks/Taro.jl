@@ -62,6 +62,8 @@ c=createCell(r, 3)
 setCellValue(c, 2.5)
 c=createCell(r, 4)
 setCellValue(c, t)
+c=createCell(r, 5)
+setCellFormula(c, "C2+D2")
 write(Pkg.dir("Taro", "test", "write-tests.xlsx"), w)
 
 #read the file we just wrote
@@ -76,6 +78,8 @@ c2 = getCell(r2, 3)
 @assert getCellValue(c2) == 2.5
 c2 = getCell(r2, 4)
 @assert fromExcelDate(getCellValue(c2)) == t
+c2 = getCell(r2, 5)
+@assert getCellFormula(c2) == "C2+D2"
 ```
 
 ###Extract raw content from document files

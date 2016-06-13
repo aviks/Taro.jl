@@ -2,7 +2,7 @@
 
 export Workbook, getSheet, createSheet, getRow, createRow, getCell, createCell,
     getExcelDate, fromExcelDate, getCellType, isCellDateFormatted, setCellValue,
-    getCellValue
+    getCellValue, setCellFormula, getCellFormula
 
 const CELL_TYPE_NUMERIC = 0;
 const CELL_TYPE_STRING = 1;
@@ -164,6 +164,7 @@ getCachedFormulaResultType(cell::Cell) = jcall(cell, "getCachedFormulaResultType
 getBooleanCellValue(cell::Cell) = jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE
 getNumericCellValue(cell::Cell) = jcall(cell, "getNumericCellValue", jdouble, (),)
 getStringCellValue(cell::Cell) = jcall(cell, "getStringCellValue", JString, (),)
+getCellFormula(cell::Cell) = jcall(cell, "getCellFormula", JString, (),)
 
 function getCellValue(cell::Cell)
     celltype = getCellType(cell)
@@ -193,7 +194,7 @@ end
 setCellValue(c::Cell, s::AbstractString) = jcall(c, "setCellValue", Void, (JString,), s)
 setCellValue(c::Cell, n::Real) = jcall(c, "setCellValue", Void, (jdouble,), n)
 setCellValue(c::Cell, d::Union{Date, DateTime}) = jcall(c, "setCellValue", Void, (jdouble, ), getExcelDate(d))
-
+setCellFormula(c::Cell, s::AbstractString) = jcall(c, "setCellFormula", Void, (JString, ), s)
 
 ### Excel Date related functions
 global const SECONDS_PER_MINUTE = 60
