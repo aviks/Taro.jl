@@ -47,7 +47,7 @@ The readxl function returns a dataframe from the contents of an MS Excel file. T
 
 The `readxl` function above is a simple, high level method to read tabular data from Excel files into
 a Julia DataFrames. For more control over reading files cell by cell, and for creating or modifyting  excel files,  this package exposes functions to read, create and write workbooks, sheets, rows and cells.
-The functions are modelled on the underlying POI API, which in turn is based
+The functions are modelled on the underlying POI API (converted to functional form), which in turn is based on the structure of an Excel file. 
 
 ```julia
 t=now()
