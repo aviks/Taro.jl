@@ -276,6 +276,9 @@ c=createCell(r, 1); setCellValue(c, &quot;A String&quot;)
 c=createCell(r, 2); setCellValue(c, 25)
 c=createCell(r, 3); setCellValue(c, 2.5)
 c=createCell(r, 4); setCellValue(c, t)
+s=createCellStyle(w)
+setDataFormat(w, s, &quot;m/d/yy h:mm&quot;)
+setCellStyle(c, s)
 c=createCell(r, 5); setCellFormula(c, &quot;C2+D2&quot;)
 write(Pkg.dir(&quot;Taro&quot;, &quot;test&quot;, &quot;write-tests.xlsx&quot;), w)
 </code></pre>
@@ -283,13 +286,13 @@ write(Pkg.dir(&quot;Taro&quot;, &quot;test&quot;, &quot;write-tests.xlsx&quot;),
 <p>We can now read the file we just wrote, and verify the values we inserted.</p>
 <pre><code class="julia">
 julia&gt; w2=Workbook(Pkg.dir(&quot;Taro&quot;, &quot;test&quot;, &quot;write-tests.xlsx&quot;))
-JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Workbook&quot;)}(Ptr{Void} @0x00007f9d1ec41fb0)
+JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Workbook&quot;)}(Ptr{Void} @0x00007fe76bbe65c0)
 
 julia&gt; s2 = getSheet(w2, &quot;runtests&quot;)
-JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Sheet&quot;)}(Ptr{Void} @0x00007f9d1ec41fa0)
+JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Sheet&quot;)}(Ptr{Void} @0x00007fe76bbe65b0)
 
 julia&gt; r2 = getRow(s2, 1)
-JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Row&quot;)}(Ptr{Void} @0x00007f9d1ec41f98)
+JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Row&quot;)}(Ptr{Void} @0x00007fe76bbe6498)
 
 julia&gt; c2 = getCell(r2, 1); getCellValue(c2)
 &quot;A String&quot;
@@ -300,8 +303,8 @@ julia&gt; c2 = getCell(r2, 2); getCellValue(c2)
 julia&gt; c2 = getCell(r2, 3); getCellValue(c2)
 2.5
 
-julia&gt; c2 = getCell(r2, 4); fromExcelDate(getCellValue(c2))
-2016-06-14T21:38:09
+julia&gt; c2 = getCell(r2, 4); getCellValue(c2)
+2016-06-14T22:47:38
 
 julia&gt; c2 = getCell(r2, 5); getCellFormula(c2)
 &quot;C2+D2&quot;
