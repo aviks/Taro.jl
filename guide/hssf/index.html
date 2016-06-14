@@ -236,7 +236,7 @@
         <div class="wrapper">
           
           <h1 id="read-and-write-excel-files">Read and Write Excel Files</h1>
-<p>The <a href="../../api/#Taro.readxl"><code>Taro.readxl</code></a> function above is a simple, high level method to read tabular data from Excel files into a Julia DataFrames. For more control over reading files cell by cell, and for creating or modifyting  excel files,  this package exposes functions to read, create and write workbooks, sheets, rows and cells. The functions are modelled on the underlying POI API (converted to functional form), which in turn is based on the structure of an Excel file.</p>
+<p>The <a href="../../api/#Taro.readxl"><code>Taro.readxl</code></a> function is a simple, high level method to read tabular data from Excel files into a Julia DataFrames. For more control over reading files cell by cell, and for creating or modifyting  excel files,  this package exposes functions to read, create and write workbooks, sheets, rows and cells. The functions are modelled on the underlying POI API (converted to functional form), which in turn is based on the structure of an Excel file.</p>
 <pre><code class="julia">t=now()
 w=Workbook()
 s=createSheet(w, &quot;runtests&quot;)
@@ -252,13 +252,13 @@ write(Pkg.dir(&quot;Taro&quot;, &quot;test&quot;, &quot;write-tests.xlsx&quot;),
 <p>We can now read the file we just wrote, and verify the values we inserted.</p>
 <pre><code class="julia">
 julia&gt; w2=Workbook(Pkg.dir(&quot;Taro&quot;, &quot;test&quot;, &quot;write-tests.xlsx&quot;))
-JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Workbook&quot;)}(Ptr{Void} @0x00007faa9b6ac9b0)
+JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Workbook&quot;)}(Ptr{Void} @0x00007faadc44a390)
 
 julia&gt; s2 = getSheet(w2, &quot;runtests&quot;)
-JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Sheet&quot;)}(Ptr{Void} @0x00007faa9b6ac9a0)
+JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Sheet&quot;)}(Ptr{Void} @0x00007faadc44a380)
 
 julia&gt; r2 = getRow(s2, 1)
-JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Row&quot;)}(Ptr{Void} @0x00007faa9b6ac998)
+JavaCall.JavaObject{symbol(&quot;org.apache.poi.ss.usermodel.Row&quot;)}(Ptr{Void} @0x00007faadc44a378)
 
 julia&gt; c2 = getCell(r2, 1); getCellValue(c2)
 &quot;A String&quot;
@@ -270,7 +270,7 @@ julia&gt; c2 = getCell(r2, 3); getCellValue(c2)
 2.5
 
 julia&gt; c2 = getCell(r2, 4); fromExcelDate(getCellValue(c2))
-2016-06-14T15:47:56
+2016-06-14T15:55:57
 
 julia&gt; c2 = getCell(r2, 5); getCellFormula(c2)
 &quot;C2+D2&quot;

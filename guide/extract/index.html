@@ -275,6 +275,7 @@ julia&gt; body[1:50]
 <p><a id='Read-Excel-files-into-a-DataFrame-1'></a></p>
 <h2 id="read-excel-files-into-a-dataframe">Read Excel files into a DataFrame</h2>
 <p>The <a href="../../api/#Taro.readxl"><code>Taro.readxl</code></a> method reads a rectangular region from an excel sheet, and returns a <a href="http://juliastats.github.io/DataFrames.jl/stable/man/getting_started/#The-DataFrame-Type-1">Dataframe</a>. This function takes as an input parameter the name and path of the Excel file to be read. A sheet name (or number) can optionally be supplied. If no sheet information is given, the first sheet (index 0) is read. Finally, this function is provided with the rectangular region from which data is extracted. This region is specified as an excel range.</p>
+<p>This function is similar to, and inspired by, the <a href="http://juliastats.github.io/DataFrames.jl/stable/man/io/#DataFrames.readtable">readtable</a> function in DataFrames. </p>
 <pre><code class="julia">
 julia&gt; testfile = joinpath(Pkg.dir(),&quot;Taro&quot;,&quot;test&quot;,&quot;df-test.xlsx&quot;);
 
