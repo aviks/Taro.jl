@@ -235,7 +235,37 @@
           
             <h1>XSL-FO</h1>
           
-          
+          <p>Taro has an interface to the <code>Apache FOP</code> project. This allows you to generate professional quality PDF files from <code>XSL-FO</code> layout definition templates. Please see the <a href="https://xmlgraphics.apache.org/fop/">FOP Documentation</a> for details.</p>
+<p>The <a href="../../api/#Taro.fo"><code>Taro.fo</code></a> function take two parameters: an input FO file name, and an output PDF file name, and creates the latter from the former. The FO file is usually created by injecting dynamic data into a template. </p>
+<pre><code class="julia">using Taro
+#Use Mustache.jl to inject content into the template
+#stored in tables.fo.tmpl
+using Mustache
+#Using Faker to generate fake date for the test
+using Faker
+
+
+tdir = joinpath(Pkg.dir(&quot;Taro&quot;),&quot;examples&quot;)
+#Load template to memory from file
+tmpl = Mustache.template_from_file(joinpath(tdir, &quot;tables.fo.tmpl&quot;))
+
+#Generate Fake data
+d=Array(Dict, 100);
+for i in 1:length(d)
+    d[i] = Faker.simple_profile()
+end
+
+#Create temporary file to store the rendered fo file
+tn, to=mktemp()
+#render the mustache template to fo file
+#This step injects the dynamic data into the template
+fo=render(tmpl, D=d)
+write(to, fo )
+close(to)
+
+#convert the FO file to PDF
+Taro.fo(tn, joinpath(tdir,&quot;tables.pdf&quot;))
+</code></pre>
           <aside class="copyright" role="note">
             
             Documentation built with
