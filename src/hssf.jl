@@ -11,9 +11,23 @@ const CELL_TYPE_BLANK = 3;
 const CELL_TYPE_BOOLEAN = 4;
 const CELL_TYPE_ERROR = 5;
 
+"""
+An excel Workbook, representing a single file. Wrapper around  the Java class
+`org.apache.poi.ss.usermodel.Workbook`. Constructors of this types are used to
+read existing files, or create new ones.
+"""
 typealias Workbook  JavaObject{symbol("org.apache.poi.ss.usermodel.Workbook")}
+"""
+An excel Sheet, contained within a workbook. Wrapper around  the Java class
+`org.apache.poi.ss.usermodel.Sheet`.
+"""
 typealias Sheet  JavaObject{symbol("org.apache.poi.ss.usermodel.Sheet")}
+"""A row in a sheet. Contains cells
+"""
 typealias Row  JavaObject{symbol("org.apache.poi.ss.usermodel.Row")}
+"""A cell within an excel sheet. Most operations to get or set values occur
+on a cell. Wrapper for Java class `org.apache.poi.ss.usermodel.Cell`
+"""
 typealias Cell  JavaObject{symbol("org.apache.poi.ss.usermodel.Cell")}
 
 jFile = @jimport java.io.File
@@ -93,8 +107,13 @@ function readxl(filename::AbstractString, sheet, range::AbstractString;
     readxl(filename, sheet, startrow, startcol, endrow, endcol, o)
 end
 
-getSheet(book::JavaObject , sheetName::AbstractString) = jcall(book, "getSheet", Sheet, (JString,), sheetName)
-getSheet(book::JavaObject , sheetNum::Integer) = jcall(book, "getSheetAt", Sheet, (jint,), sheetNum)
+"""
+    getSheet(book::Workbook, sheet)
+
+Return the specified sheet from the workbook.  sheet can be specified as a name (string) or number (0-indexed)
+"""
+getSheet(book::Workbook , sheetName::AbstractString) = jcall(book, "getSheet", Sheet, (JString,), sheetName)
+getSheet(book::Workbook , sheetNum::Integer) = jcall(book, "getSheetAt", Sheet, (jint,), sheetNum)
 getSheetAt(book::Workbook, sheetNum::Integer) = getSheet(book, sheetNum)
 
 
@@ -165,6 +184,11 @@ function colnum(col::AbstractString)
 	return r-1
 end
 
+"""
+    Workbook(filename::AbstractString)
+
+Read an excel file and return a Workbook object
+"""
 function Workbook(filename::AbstractString)
 	f=jFile((JString,), filename)
 	WorkbookFactory = @jimport org.apache.poi.ss.usermodel.WorkbookFactory
@@ -173,6 +197,11 @@ function Workbook(filename::AbstractString)
     return book
 end
 
+"""
+    Workbook()
+
+Create a new Workbook in memory.
+"""
 function Workbook(x::Bool=true)
     local w
     if x
@@ -183,18 +212,50 @@ function Workbook(x::Bool=true)
     return convert(Workbook, w)
 end
 
+"""
+    createSheet(w::Workbook, s::AbstractString)
+
+Create a new sheet in the workbook with the specified name.
+"""
 createSheet(w::Workbook, s::AbstractString) = jcall(w, "createSheet", Sheet, (JString,), s)
 createRow(s::Sheet, r::Integer) = jcall(s, "createRow", Row, (jint,), r)
 createCell(r::Row, c::Integer) = jcall(r, "createCell", Cell, (jint,), c)
 getCell(row::Row, c::Integer) = jcall(row, "getCell", Cell, (jint,), c)
 getRow(sheet::Sheet, r::Integer) = jcall(sheet, "getRow", Row, (jint,), r)
+
+"""
+    getCellType(cell::Cell)
+
+Return the type of a cell:
+CELL_TYPE_NUMERIC, CELL_TYPE_STRING, CELL_TYPE_FORMULA, CELL_TYPE_BLANK, CELL_TYPE_BOOLEAN, CELL_TYPE_ERROR
+"""
 getCellType(cell::Cell) = jcall(cell, "getCellType", jint, (),)
+
 getCachedFormulaResultType(cell::Cell) = jcall(cell, "getCachedFormulaResultType", jint, (),)
 getBooleanCellValue(cell::Cell) = jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE
 getNumericCellValue(cell::Cell) = jcall(cell, "getNumericCellValue", jdouble, (),)
 getStringCellValue(cell::Cell) = jcall(cell, "getStringCellValue", JString, (),)
+
+"""
+    getCellFormula(cell::Cell)
+"""
 getCellFormula(cell::Cell) = jcall(cell, "getCellFormula", JString, (),)
 
+"""
+    getCellValue(cell::Cell)
+
+Return the contents of a Excel cell.
+
+A string or a float value is returned based on the type of the contents of the cell.
+If a cell is recognised as a being formatted like a date, a Julia DateTime object is returned.
+This function therefore is *not* type stable. For formulas, the last evaluated value
+of the cell is returned.
+
+Note that the dates are stored internally within Excel as floats, and the recognition as
+a date is heuristic.
+
+If a cell contains an error value, or is empty, `nothing` is returned.
+"""
 function getCellValue(cell::Cell)
     celltype = getCellType(cell)
     if celltype == CELL_TYPE_FORMULA
@@ -205,7 +266,11 @@ function getCellValue(cell::Cell)
     elseif celltype == CELL_TYPE_BOOLEAN
         return  getBooleanCellValue(cell)
     elseif celltype == CELL_TYPE_NUMERIC
-        return getNumericCellValue(cell)
+        if isCellDateFormatted(cell)
+            return fromExcelDate(getNumericCellValue(cell))
+        else
+            return getNumericCellValue(cell)
+        end
     elseif celltype == CELL_TYPE_STRING
         return getStringCellValue(cell)
     else
@@ -214,15 +279,35 @@ function getCellValue(cell::Cell)
     end
 end
 
+"""
+    write(filename::AbstractString, w::Workbook)
+
+Write a workbook to disk.
+"""
 function Base.write(filename::AbstractString, w::Workbook)
     fos = @jimport(java.io.FileOutputStream)((JString,), filename)
     jcall(w, "write", Void, (@jimport(java.io.OutputStream),), fos)
     jcall(fos, "close", Void,())
 end
 
+"""
+    setCellValue(c::Cell, x)
+
+Set the value of an excel cell. The value can be a string, a real number, or a Date or DateTime.
+"""
 setCellValue(c::Cell, s::AbstractString) = jcall(c, "setCellValue", Void, (JString,), s)
 setCellValue(c::Cell, n::Real) = jcall(c, "setCellValue", Void, (jdouble,), n)
 setCellValue(c::Cell, d::Union{Date, DateTime}) = jcall(c, "setCellValue", Void, (jdouble, ), getExcelDate(d))
+
+"""
+    setCellFormula(c::Cell, formula::AbstractString)
+
+Set a formula as a value to an Excel cell.
+
+The formula string should be what you would expect to enter in excel, but without the *+*.
+For example: "A2+2*B2" , "sin(A2)" , "some_user_defined_formula(B2)"
+Note that the formula will be evaluated only when the file is actually opened in Excel.
+"""
 setCellFormula(c::Cell, s::AbstractString) = jcall(c, "setCellFormula", Void, (JString, ), s)
 
 ### Excel Date related functions
@@ -236,10 +321,11 @@ global const DAY_MILLISECONDS = SECONDS_PER_DAY * 1000
     fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
 
 Convert an Excel style date to a Julia DateTime object.
-   Excel stores dates and times as a floating point number
-   representing the fractional days since 1/1/1900. If `use1904windowing` is true, the epoch is 1/1/1904,
-   which is used in some older Excel for Mac versions. If `roundtoSeconds` is true, the millisecond
-   part of the time is discarded.
+
+Excel stores dates and times as a floating point number representing the
+fractional days since 1/1/1900. If `use1904windowing` is true, the epoch is 1/1/1904,
+which is used in some older Excel for Mac versions. If `roundtoSeconds` is true,
+the millisecond part of the time is discarded.
 """
 function fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
       wholeDays = floor(Int, date)
@@ -293,6 +379,14 @@ function getExcelDate(date::DateTime, use1904windowing::Bool=false)  #->Float64
         return value+fraction
 end
 getExcelDate(date::Date, use1904windowing::Bool=false) = getExcelDate(DateTime(date), use1904windowing)
+
+"""
+    isCellDateFormatted(cell::Cell)
+
+Return true if the format applied to the cell looks like a date.
+
+This is a heuristic, and not guaranteed to be correct. 
+"""
 isCellDateFormatted(cell::Cell) =
      jcall(@jimport(org.apache.poi.ss.usermodel.DateUtil), "isCellDateFormatted", jboolean, (Cell,), cell) ==
          JavaCall.JNI_TRUE
