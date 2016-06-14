@@ -21,6 +21,11 @@ markdown_extensions:
 
 docs_dir: 'build'
 
+extra:
+  author:
+    github: 'aviks'
+    twitter: 'aviksengupta'
+
 pages:
   - Home: index.md
   - Guide:

@@ -2,7 +2,8 @@
 
 export Workbook, getSheet, createSheet, getRow, createRow, getCell, createCell,
     getExcelDate, fromExcelDate, getCellType, isCellDateFormatted, setCellValue,
-    getCellValue, setCellFormula, getCellFormula
+    getCellValue, setCellFormula, getCellFormula, createCellStyle, setCellStyle,
+    setDataFormat
 
 const CELL_TYPE_NUMERIC = 0;
 const CELL_TYPE_STRING = 1;
@@ -17,18 +18,25 @@ An excel Workbook, representing a single file. Wrapper around  the Java class
 read existing files, or create new ones.
 """
 typealias Workbook  JavaObject{symbol("org.apache.poi.ss.usermodel.Workbook")}
+
 """
-An excel Sheet, contained within a workbook. Wrapper around  the Java class
+An excel Sheet, contained within a workbook. Wrapper around the Java class
 `org.apache.poi.ss.usermodel.Sheet`.
 """
 typealias Sheet  JavaObject{symbol("org.apache.poi.ss.usermodel.Sheet")}
-"""A row in a sheet. Contains cells
-"""
+
+"A row in a sheet. Contains cells"
 typealias Row  JavaObject{symbol("org.apache.poi.ss.usermodel.Row")}
+
 """A cell within an excel sheet. Most operations to get or set values occur
 on a cell. Wrapper for Java class `org.apache.poi.ss.usermodel.Cell`
 """
-typealias Cell  JavaObject{symbol("org.apache.poi.ss.usermodel.Cell")}
+typealias Cell JavaObject{symbol("org.apache.poi.ss.usermodel.Cell")}
+
+"A Cell style. Wrapper for Java class `org.apache.poi.ss.usermodel.CellStyle`"
+typealias CellStyle JavaObject{symbol("org.apache.poi.ss.usermodel.CellStyle")}
+typealias DataFormat JavaObject{symbol("org.apache.poi.ss.usermodel.DataFormat")}
+
 
 jFile = @jimport java.io.File
 
@@ -310,6 +318,28 @@ Note that the formula will be evaluated only when the file is actually opened in
 """
 setCellFormula(c::Cell, s::AbstractString) = jcall(c, "setCellFormula", Void, (JString, ), s)
 
+"""
+    setCellStyle(cell:Cell, style::CellStyle)
+
+Set a style to a cell. The CellStyle object must be created from the workbook
+"""
+setCellStyle(cell::Cell, style::CellStyle) = jcall(cell, "setCellStyle", Void, (CellStyle, ), style)
+
+"create a new cell style from a workbook, prior to setting it on a cell"
+createCellStyle(w::Workbook) = jcall(w, "createCellStyle", CellStyle, (),)
+
+"""
+    setDataFormat(w::Workbook, style::CellStyle, format::AbstractString)
+
+Set a dataformat on a CellStyle. Need the workbook to tie everything together
+"""
+function setDataFormat(w::Workbook, style::CellStyle, f::AbstractString)
+    creationHelper = jcall(w, "getCreationHelper", @jimport(org.apache.poi.ss.usermodel.CreationHelper), (), )
+    dataFormat = jcall(creationHelper, "createDataFormat", DataFormat, (), )
+    format = jcall(dataFormat, "getFormat", jshort, (JString, ), f)
+    jcall(style, "setDataFormat", Void, (jshort, ), format)
+end
+
 ### Excel Date related functions
 global const SECONDS_PER_MINUTE = 60
 global const MINUTES_PER_HOUR = 60
@@ -385,7 +415,7 @@ getExcelDate(date::Date, use1904windowing::Bool=false) = getExcelDate(DateTime(d
 
 Return true if the format applied to the cell looks like a date.
 
-This is a heuristic, and not guaranteed to be correct. 
+This is a heuristic, and not guaranteed to be correct.
 """
 isCellDateFormatted(cell::Cell) =
      jcall(@jimport(org.apache.poi.ss.usermodel.DateUtil), "isCellDateFormatted", jboolean, (Cell,), cell) ==
