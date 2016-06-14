@@ -232,12 +232,53 @@
             <h1>Reference</h1>
           
           <ul>
+<li><a href="./#JavaCall.JavaObject"><code>JavaCall.JavaObject</code></a></li>
+<li><a href="./#Taro.Cell"><code>Taro.Cell</code></a></li>
+<li><a href="./#Taro.Row"><code>Taro.Row</code></a></li>
+<li><a href="./#Taro.Sheet"><code>Taro.Sheet</code></a></li>
+<li><a href="./#Taro.Workbook"><code>Taro.Workbook</code></a></li>
+<li><a href="./#Base.write"><code>Base.write</code></a></li>
+<li><a href="./#Taro.createSheet"><code>Taro.createSheet</code></a></li>
 <li><a href="./#Taro.extract"><code>Taro.extract</code></a></li>
 <li><a href="./#Taro.fo"><code>Taro.fo</code></a></li>
 <li><a href="./#Taro.fromExcelDate"><code>Taro.fromExcelDate</code></a></li>
+<li><a href="./#Taro.getCellFormula"><code>Taro.getCellFormula</code></a></li>
+<li><a href="./#Taro.getCellType"><code>Taro.getCellType</code></a></li>
+<li><a href="./#Taro.getCellValue"><code>Taro.getCellValue</code></a></li>
 <li><a href="./#Taro.getExcelDate"><code>Taro.getExcelDate</code></a></li>
+<li><a href="./#Taro.getSheet"><code>Taro.getSheet</code></a></li>
+<li><a href="./#Taro.isCellDateFormatted"><code>Taro.isCellDateFormatted</code></a></li>
 <li><a href="./#Taro.readxl"><code>Taro.readxl</code></a></li>
+<li><a href="./#Taro.setCellFormula"><code>Taro.setCellFormula</code></a></li>
+<li><a href="./#Taro.setCellValue"><code>Taro.setCellValue</code></a></li>
 </ul>
+<p><a id='JavaCall.JavaObject' href='#JavaCall.JavaObject'>#</a>
+<strong><code>JavaCall.JavaObject</code></strong> &mdash; <em>Type</em>.</p>
+<p>A Julia wrapper around a JNI object pointer</p>
+<p><a id='Taro.Cell' href='#Taro.Cell'>#</a>
+<strong><code>Taro.Cell</code></strong> &mdash; <em>Type</em>.</p>
+<p>A cell within an excel sheet. Most operations to get or set values occur on a cell. Wrapper for Java class <code>org.apache.poi.ss.usermodel.Cell</code></p>
+<p><a id='Taro.Row' href='#Taro.Row'>#</a>
+<strong><code>Taro.Row</code></strong> &mdash; <em>Type</em>.</p>
+<p>A row in a sheet. Contains cells</p>
+<p><a id='Taro.Sheet' href='#Taro.Sheet'>#</a>
+<strong><code>Taro.Sheet</code></strong> &mdash; <em>Type</em>.</p>
+<p>An excel Sheet, contained within a workbook. Wrapper around  the Java class <code>org.apache.poi.ss.usermodel.Sheet</code>.</p>
+<p><a id='Taro.Workbook' href='#Taro.Workbook'>#</a>
+<strong><code>Taro.Workbook</code></strong> &mdash; <em>Type</em>.</p>
+<p>An excel Workbook, representing a single file. Wrapper around  the Java class <code>org.apache.poi.ss.usermodel.Workbook</code>. Constructors of this types are used to read existing files, or create new ones.</p>
+<p><a id='Base.write' href='#Base.write'>#</a>
+<strong><code>Base.write</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>write(filename::AbstractString, w::Workbook)
+</code></pre>
+
+<p>Write a workbook to disk.</p>
+<p><a id='Taro.createSheet' href='#Taro.createSheet'>#</a>
+<strong><code>Taro.createSheet</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>createSheet(w::Workbook, s::AbstractString)
+</code></pre>
+
+<p>Create a new sheet in the workbook with the specified name.</p>
 <p><a id='Taro.extract' href='#Taro.extract'>#</a>
 <strong><code>Taro.extract</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>extract(filename::AbstractString)
@@ -258,13 +299,47 @@
 <pre><code>fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
 </code></pre>
 
-<p>Convert an Excel style date to a Julia DateTime object.    Excel stores dates and times as a floating point number    representing the fractional days since 1/1/1900. If <code>use1904windowing</code> is true, the epoch is 1/1/1904,    which is used in some older Excel for Mac versions. If <code>roundtoSeconds</code> is true, the millisecond    part of the time is discarded.</p>
+<p>Convert an Excel style date to a Julia DateTime object.</p>
+<p>Excel stores dates and times as a floating point number representing the fractional days since 1/1/1900. If <code>use1904windowing</code> is true, the epoch is 1/1/1904, which is used in some older Excel for Mac versions. If <code>roundtoSeconds</code> is true, the millisecond part of the time is discarded.</p>
+<p><a id='Taro.getCellFormula' href='#Taro.getCellFormula'>#</a>
+<strong><code>Taro.getCellFormula</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>getCellFormula(cell::Cell)
+</code></pre>
+
+<p><a id='Taro.getCellType' href='#Taro.getCellType'>#</a>
+<strong><code>Taro.getCellType</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>getCellType(cell::Cell)
+</code></pre>
+
+<p>Return the type of a cell: CELL_TYPE_NUMERIC, CELL_TYPE_STRING, CELL_TYPE_FORMULA, CELL_TYPE_BLANK, CELL_TYPE_BOOLEAN, CELL_TYPE_ERROR</p>
+<p><a id='Taro.getCellValue' href='#Taro.getCellValue'>#</a>
+<strong><code>Taro.getCellValue</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>getCellValue(cell::Cell)
+</code></pre>
+
+<p>Return the contents of a Excel cell.</p>
+<p>A string or a float value is returned based on the type of the contents of the cell. If a cell is recognised as a being formatted like a date, a Julia DateTime object is returned. This function therefore is <em>not</em> type stable. For formulas, the last evaluated value of the cell is returned.</p>
+<p>Note that the dates are stored internally within Excel as floats, and the recognition as a date is heuristic.</p>
+<p>If a cell contains an error value, or is empty, <code>nothing</code> is returned.</p>
 <p><a id='Taro.getExcelDate' href='#Taro.getExcelDate'>#</a>
 <strong><code>Taro.getExcelDate</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>getExcelDate(date::DateTime, use1904windowing::Bool = false)
 </code></pre>
 
 <p>Convert a Julia DateTime object into an Excel Date. The result will be a floating point number representing days since 1/1/1900. The time from midnight will be the fractional part of the number. If <code>use1904windowing</code> is true, the epoch is 1/1/1904, which is used in some older Excel for Mac versions.</p>
+<p><a id='Taro.getSheet' href='#Taro.getSheet'>#</a>
+<strong><code>Taro.getSheet</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>getSheet(book::Workbook, sheet)
+</code></pre>
+
+<p>Return the specified sheet from the workbook.  sheet can be specified as a name (string) or number (0-indexed)</p>
+<p><a id='Taro.isCellDateFormatted' href='#Taro.isCellDateFormatted'>#</a>
+<strong><code>Taro.isCellDateFormatted</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>isCellDateFormatted(cell::Cell)
+</code></pre>
+
+<p>Return true if the format applied to the cell looks like a date.</p>
+<p>This is a heuristic, and not guaranteed to be correct. </p>
 <p><a id='Taro.readxl' href='#Taro.readxl'>#</a>
 <strong><code>Taro.readxl</code></strong> &mdash; <em>Function</em>.</p>
 <p>Read tabular data out of an excel file into a Julia Dataframe. This is similar to the <code>readtable</code> function in the Dataframes package that reads a CSV file into a Dataframe.</p>
@@ -286,6 +361,20 @@ skipstart::Int = 0
 skiprows::Vector{Int} = Int[]
 skipblanks::Bool = true
 </code></pre>
+
+<p><a id='Taro.setCellFormula' href='#Taro.setCellFormula'>#</a>
+<strong><code>Taro.setCellFormula</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>setCellFormula(c::Cell, formula::AbstractString)
+</code></pre>
+
+<p>Set a formula as a value to an Excel cell.</p>
+<p>The formula string should be what you would expect to enter in excel, but without the <em>+</em>. For example: "A2+2*B2" , "sin(A2)" , "some_user_defined_formula(B2)" Note that the formula will be evaluated only when the file is actually opened in Excel.</p>
+<p><a id='Taro.setCellValue' href='#Taro.setCellValue'>#</a>
+<strong><code>Taro.setCellValue</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>setCellValue(c::Cell, x)
+</code></pre>
+
+<p>Set the value of an excel cell. The value can be a string, a real number, or a Date or DateTime.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
