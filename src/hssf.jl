@@ -33,6 +33,34 @@ end
 #Cant use optional arguments since our API was already set with sheet as the second param.
 readxl(filename::AbstractString, range::AbstractString;  opts...) = readxl(filename, 0, range; opts...)
 
+"""
+Read tabular data out of an excel file into a Julia Dataframe. This is similar to the
+`readtable` function in the Dataframes package that reads a CSV file into a Dataframe.
+
+The function returns a dataframe from the contents of an MS Excel file.
+The sheet and region containing the data should be specified.
+By default, a header row is expected, which must consist only of strings.
+The `header` keyword argument should be set to `false` if no header is present in the data.
+
+    filename : path of excel file (.xls or .xlsx)
+    sheet : sheet name or number (0-based).
+        Can be omitted, in which case the first sheet (index `0`) in the workbook is selected.
+    range : string containing an excel range to read. eg. B4:D45
+
+Optional Arguments : similar to `Dataframes.readtable`.
+```
+header::Bool = true
+nastrings::Vector = ASCIIString["", "NA"]
+truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"]
+falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"]
+colnames::Vector = Symbol[]
+coltypes::Vector{Any} = Any[]
+skipstart::Int = 0
+skiprows::Vector{Int} = Int[]
+skipblanks::Bool = true
+```
+
+"""
 function readxl(filename::AbstractString, sheet, range::AbstractString;
 				   header::Bool = true,
                    nastrings::Vector = ASCIIString["", "NA"],
@@ -68,6 +96,7 @@ end
 getSheet(book::JavaObject , sheetName::AbstractString) = jcall(book, "getSheet", Sheet, (JString,), sheetName)
 getSheet(book::JavaObject , sheetNum::Integer) = jcall(book, "getSheetAt", Sheet, (jint,), sheetNum)
 getSheetAt(book::Workbook, sheetNum::Integer) = getSheet(book, sheetNum)
+
 
 function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::Int, endrow::Int, endcol::Int, o )
 	JavaCall.assertloaded()
@@ -204,9 +233,13 @@ global const SECONDS_PER_DAY = (HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_M
 global const DAY_MILLISECONDS = SECONDS_PER_DAY * 1000
 
 """
-Convert an Excel style date to a Julia DateTime object
-   Excel stores dates and times as  a floating point number
-   representing the fractional days since 1/1/1900 (or 1/1/1904)
+    fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
+
+Convert an Excel style date to a Julia DateTime object.
+   Excel stores dates and times as a floating point number
+   representing the fractional days since 1/1/1900. If `use1904windowing` is true, the epoch is 1/1/1904,
+   which is used in some older Excel for Mac versions. If `roundtoSeconds` is true, the millisecond
+   part of the time is discarded.
 """
 function fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
       wholeDays = floor(Int, date)
@@ -230,9 +263,12 @@ function fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=fals
 end
 
 """
-Convert a Julia DateTime object into an Excel Date.
-  Excel stores dates and times as  a floating point number
-  representing the fractional days since 1/1/1900 (or 1/1/1904)
+    getExcelDate(date::DateTime, use1904windowing::Bool = false)
+
+Convert a Julia DateTime object into an Excel Date. The result will be a floating
+point number representing days since 1/1/1900. The time from midnight will be the
+fractional part of the number. If `use1904windowing` is true, the epoch is 1/1/1904,
+which is used in some older Excel for Mac versions.
 """
 function getExcelDate(date::DateTime, use1904windowing::Bool=false)  #->Float64
         if (!use1904windowing && Dates.year(date) < 1900)  || (use1904windowing && Dates.year(date) < 1904)

@@ -33,7 +33,14 @@ JavaCall.addOpts("-Xmx256M")
 JavaCall.addOpts("-Djava.awt.headless=true")
 
 init() = JavaCall.init()
+"""
+    extract(filename::AbstractString)
 
+Extract raw text from documents, using Apache Tika.
+Returns a Dict of metadata name value pairs, and a String with the text of the document.
+
+    filename: path of file to read. relative to current directory, or absolute
+"""
 function extract(filename::AbstractString)
 	JavaCall.assertloaded()
 	File = @jimport java.io.File

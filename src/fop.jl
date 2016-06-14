@@ -1,5 +1,9 @@
 
+"""
+    Taro.fo(inputFoFileName::String, outputPDFFileName::String)
 
+Convert the input `fo` file to a PDF.
+"""
 function fo(input::AbstractString, output::AbstractString)
 
     FopFactory = @jimport org.apache.fop.apps.FopFactory

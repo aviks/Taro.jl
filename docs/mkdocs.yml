@@ -1,0 +1,30 @@
+
+site_name:        Taro.jl
+repo_url:         https://github.com/aviks/Taro.jl
+site_description: Work with document files in Julia
+site_author:      Avik Sengupta
+
+theme: material
+
+extra_css:
+  - assets/Documenter.css
+
+extra_javascript:
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+  - assets/mathjaxhelper.js
+
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - mdx_math
+
+docs_dir: 'build'
+
+pages:
+  - Home: index.md
+  - Guide:
+    - Extraction: guide/extract.md
+    - Excel: guide/hssf.md
+    - XSL-FO: guide/fo.md
+  - Reference: api.md
