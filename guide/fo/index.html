@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Reference - Taro.jl</title>
+        <title>XSL-FO - Taro.jl</title>
       
       
       
@@ -19,31 +19,31 @@
     
     <meta property="og:url" content="None">
     <meta property="og:title" content="Taro.jl">
-    <meta property="og:image" content="None/../">
+    <meta property="og:image" content="None/../../">
     <meta name="apple-mobile-web-app-title" content="Taro.jl">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="../None">
-    <link rel="icon" type="image/x-icon" href="../None">
+    <link rel="shortcut icon" type="image/x-icon" href="../../None">
+    <link rel="icon" type="image/x-icon" href="../../None">
     <style>
       @font-face {
       	font-family: 'Icon';
-      	src: url('../assets/fonts/icon.eot?52m981');
-      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
                format('embedded-opentype'),
-      		   url('../assets/fonts/icon.woff?52m981')
+      		   url('../../assets/fonts/icon.woff?52m981')
                format('woff'),
-      		   url('../assets/fonts/icon.ttf?52m981')
+      		   url('../../assets/fonts/icon.ttf?52m981')
                format('truetype'),
-      		   url('../assets/fonts/icon.svg?52m981#icon')
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
                format('svg');
       	font-weight: normal;
       	font-style: normal;
       }
     </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-0dac3e5884.css">
+    <link rel="stylesheet" href="../../assets/stylesheets/application-0dac3e5884.css">
     
     
       
@@ -60,9 +60,9 @@
       </style>
     
     
-      <link rel="stylesheet" href="../assets/Documenter.css">
+      <link rel="stylesheet" href="../../assets/Documenter.css">
     
-    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
@@ -92,9 +92,13 @@
         
           <span class="path">
             
+              
+                Guide <i class="icon icon-link"></i>
+              
+            
           </span>
         
-        Reference
+        XSL-FO
       </div>
     </div>
     
@@ -164,7 +168,7 @@
           
             
   <li>
-    <a class="" title="Home" href="..">
+    <a class="" title="Home" href="../..">
       Home
     </a>
     
@@ -178,7 +182,7 @@
       
         
   <li>
-    <a class="" title="Extraction" href="../guide/extract/">
+    <a class="" title="Extraction" href="../extract/">
       Extraction
     </a>
     
@@ -187,7 +191,7 @@
       
         
   <li>
-    <a class="" title="Excel" href="../guide/hssf/">
+    <a class="" title="Excel" href="../hssf/">
       Excel
     </a>
     
@@ -196,9 +200,12 @@
       
         
   <li>
-    <a class="" title="XSL-FO" href="../guide/fo/">
+    <a class="current" title="XSL-FO" href="./">
       XSL-FO
     </a>
+    
+      
+      
     
   </li>
 
@@ -209,22 +216,9 @@
           
             
   <li>
-    <a class="current" title="Reference" href="./">
+    <a class="" title="Reference" href="../../api/">
       Reference
     </a>
-    
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Types and Function Reference" href="#types-and-function-reference">
-                Types and Function Reference
-              </a>
-            </li>
-          
-        </ul>
-      
     
   </li>
 
@@ -239,58 +233,9 @@
       <article class="article">
         <div class="wrapper">
           
-            <h1>Reference</h1>
+            <h1>XSL-FO</h1>
           
-          <p><a id='Types-and-Function-Reference-1'></a></p>
-<h2 id="types-and-function-reference">Types and Function Reference</h2>
-<ul>
-<li><a href="./#Taro.extract"><code>Taro.extract</code></a></li>
-<li><a href="./#Taro.fromExcelDate"><code>Taro.fromExcelDate</code></a></li>
-<li><a href="./#Taro.getExcelDate"><code>Taro.getExcelDate</code></a></li>
-<li><a href="./#Taro.readxl"><code>Taro.readxl</code></a></li>
-</ul>
-<p><a id='Taro.extract' href='#Taro.extract'>#</a>
-<strong><code>Taro.extract</code></strong> &mdash; <em>Function</em>.</p>
-<pre><code>extract(filename::AbstractString)
-</code></pre>
-
-<p>Extract raw text from documents, using Apache Tika. Returns a Dict of metadata name value pairs, and a String with the text of the document.</p>
-<pre><code>filename: path of file to read. relative to current directory, or absolute
-</code></pre>
-
-<p><a id='Taro.fromExcelDate' href='#Taro.fromExcelDate'>#</a>
-<strong><code>Taro.fromExcelDate</code></strong> &mdash; <em>Function</em>.</p>
-<pre><code>fromExcelDate(date::Number; use1904windowing=false, roundtoSeconds=false)
-</code></pre>
-
-<p>Convert an Excel style date to a Julia DateTime object.    Excel stores dates and times as a floating point number    representing the fractional days since 1/1/1900. If <code>use1904windowing</code> is true, the epoch is 1/1/1904,    which is used in some older Excel for Mac versions. If <code>roundtoSeconds</code> is true, the millisecond    part of the time is discarded.</p>
-<p><a id='Taro.getExcelDate' href='#Taro.getExcelDate'>#</a>
-<strong><code>Taro.getExcelDate</code></strong> &mdash; <em>Function</em>.</p>
-<pre><code>getExcelDate(date::DateTime, use1904windowing::Bool = false)
-</code></pre>
-
-<p>Convert a Julia DateTime object into an Excel Date. The result will be a floating point number representing days since 1/1/1900. The time from midnight will be the fractional part of the number. If <code>use1904windowing</code> is true, the epoch is 1/1/1904, which is used in some older Excel for Mac versions.</p>
-<p><a id='Taro.readxl' href='#Taro.readxl'>#</a>
-<strong><code>Taro.readxl</code></strong> &mdash; <em>Function</em>.</p>
-<p>Read tabular data out of an excel file into a Julia Dataframe. This is similar to the <code>readtable</code> function in the Dataframes package that reads a CSV file into a Dataframe.</p>
-<p>The function returns a dataframe from the contents of an MS Excel file. The sheet and region containing the data should be specified. By default, a header row is expected, which must consist only of strings. The <code>header</code> keyword argument should be set to <code>false</code> if no header is present in the data.</p>
-<pre><code>filename : path of excel file (.xls or .xlsx)
-sheet : sheet name or number (0-based).
-    Can be omitted, in which case the first sheet (index `0`) in the workbook is selected.
-range : string containing an excel range to read. eg. B4:D45
-</code></pre>
-
-<p>Optional Arguments : similar to <code>Dataframes.readtable</code>.</p>
-<pre><code>header::Bool = true
-nastrings::Vector = ASCIIString[&quot;&quot;, &quot;NA&quot;]
-truestrings::Vector = ASCIIString[&quot;T&quot;, &quot;t&quot;, &quot;TRUE&quot;, &quot;true&quot;]
-falsestrings::Vector = ASCIIString[&quot;F&quot;, &quot;f&quot;, &quot;FALSE&quot;, &quot;false&quot;]
-colnames::Vector = Symbol[]
-coltypes::Vector{Any} = Any[]
-skipstart::Int = 0
-skiprows::Vector{Int} = Int[]
-skipblanks::Bool = true
-</code></pre>
+          
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -307,7 +252,7 @@ skipblanks::Bool = true
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../guide/fo/" title="XSL-FO">
+        <a href="../hssf/" title="Excel">
           <span class="direction">
             Previous
           </span>
@@ -317,7 +262,7 @@ skipblanks::Bool = true
             </div>
             <div class="stretch">
               <div class="title">
-                XSL-FO
+                Excel
               </div>
             </div>
           </div>
@@ -325,6 +270,22 @@ skipblanks::Bool = true
       
     </div>
     <div class="next">
+      
+        <a href="../../api/" title="Reference">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Reference
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
       
     </div>
   </nav>
@@ -343,14 +304,14 @@ skipblanks::Bool = true
       </div>
     </main>
     <script>
-      var base_url = '..';
+      var base_url = '../..';
       var repo_id  = 'aviks/Taro.jl';
     </script>
-    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     
       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
-      <script src="../assets/mathjaxhelper.js"></script>
+      <script src="../../assets/mathjaxhelper.js"></script>
     
     
   </body>

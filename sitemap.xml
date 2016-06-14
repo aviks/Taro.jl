@@ -10,6 +10,28 @@
     
 
     
+        
+    <url>
+     <loc>None/guide/extract/</loc>
+     <lastmod>2016-06-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/guide/hssf/</loc>
+     <lastmod>2016-06-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/guide/fo/</loc>
+     <lastmod>2016-06-14</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
     <url>
      <loc>None/api/</loc>
      <lastmod>2016-06-14</lastmod>

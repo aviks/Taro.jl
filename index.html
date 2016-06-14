@@ -182,6 +182,18 @@
               </a>
             </li>
           
+            <li class="anchor">
+              <a title="Installation" href="#installation">
+                Installation
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Usage" href="#usage">
+                Usage
+              </a>
+            </li>
+          
         </ul>
       
     
@@ -190,8 +202,44 @@
           
             
   <li>
-    <a class="" title="Manual" href="api/">
-      Manual
+    <span class="section">Guide</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Extraction" href="guide/extract/">
+      Extraction
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Excel" href="guide/hssf/">
+      Excel
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="XSL-FO" href="guide/fo/">
+      XSL-FO
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Reference" href="api/">
+      Reference
     </a>
     
   </li>
@@ -209,12 +257,6 @@
           
           <p><a id='Taro-–-Work-with-Excel,-Word-and-PDF-files-in-Julia-1'></a></p>
 <h1 id="taro-work-with-excel-word-and-pdf-files-in-julia">Taro – Work with Excel, Word and PDF files in Julia</h1>
-<ul>
-<li><a href=".#Taro-–-Work-with-Excel,-Word-and-PDF-files-in-Julia-1">Taro – Work with Excel, Word and PDF files in Julia</a><ul>
-<li><a href="api/#Types-and-Function-Reference-1">Types and Function Reference</a></li>
-</ul>
-</li>
-</ul>
 <p>Taro is a utility belt of functions to work with document files in Julia. It uses <a href="http://tika.apache.org/">Apache Tika</a>, <a href="http://poi.apache.org">Apache POI</a> and <a href="https://xmlgraphics.apache.org/fop/">Apache FOP</a>  (via <a href="http://aviks.github.io/JavaCall.jl/">JavaCall</a>) to work with Word, Excel and PDF files.</p>
 <h2 id="package-features">Package Features</h2>
 <ul>
@@ -223,6 +265,16 @@
 <li>API to read and write Excel files from Julia</li>
 <li>Convert <code>xsl-fo</code> files to PDFs for templated document generation</li>
 </ul>
+<h2 id="installation">Installation</h2>
+<pre><code>julia&gt; Pkg.add(&quot;Taro&quot;)
+</code></pre>
+
+<p>On installation, the <code>tika-app-1.4.jar</code> file will be downloaded from <em>Maven Central</em> and <code>fop-2.0</code> will be downloaded from an Apache mirror.</p>
+<h2 id="usage">Usage</h2>
+<p>Before calling any function within this package, the <code>init()</code> method <em>must</em> be called. This will set up the correct classpath, and initialise the JVM.</p>
+<pre><code class="julia"> using Taro
+ Taro.init()
+</code></pre>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -242,14 +294,14 @@
     </div>
     <div class="next">
       
-        <a href="api/" title="Manual">
+        <a href="guide/extract/" title="Extraction">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Manual
+                Extraction
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
