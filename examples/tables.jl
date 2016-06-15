@@ -6,7 +6,7 @@ using Mustache
 using Faker
 
 
-tdir = joinpath(Pkg.dir("Taro"),"examples")
+tdir = dirname(@__FILE__)
 #Load template to memory from file
 tmpl = Mustache.template_from_file(joinpath(tdir, "tables.fo.tmpl"))
 

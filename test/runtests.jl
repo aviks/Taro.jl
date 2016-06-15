@@ -1,7 +1,7 @@
 using Base.Test
 using Taro
 
-tdir = joinpath(Pkg.dir("Taro"),"test")
+tdir = dirname(@__FILE__)
 Taro.init()
 
 meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.docx"))")
@@ -35,10 +35,10 @@ c=createCell(r, 4)
 setCellValue(c, t)
 c=createCell(r, 5)
 setCellFormula(c, "C2+D2")
-write(Pkg.dir("Taro", "test", "write-tests.xlsx"), w)
+write(joinpath(dirname(@__FILE__), "write-tests.xlsx"), w)
 
 #read the file we just wrote
-w2=Workbook(Pkg.dir("Taro", "test", "write-tests.xlsx"))
+w2=Workbook(joinpath(dirname(@__FILE__), "write-tests.xlsx"))
 s2 = getSheet(w2, "runtests")
 r2 = getRow(s2, 1)
 c2 = getCell(r2, 1)
@@ -56,7 +56,7 @@ c2 = getCell(r2, 5)
 
 try
     rm("$(joinpath(tdir,"simple.pdf"))")
-    rm(Pkg.dir("Taro", "test", "write-tests.xlsx"))
+    rm(joinpath(dirname(@__FILE__), "write-tests.xlsx"))
 catch
 end
 

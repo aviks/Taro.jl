@@ -1,5 +1,5 @@
 
-tdeps = joinpath(Pkg.dir("Taro"), "deps")
+tdeps = dirname(@__FILE__)
 tika_jar = joinpath(tdeps, "tika-app-1.10.jar")
 if !isfile(tika_jar)
     info("  Downloading tika-app-1.10.jar from Maven Central")
