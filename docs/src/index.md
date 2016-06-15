@@ -9,6 +9,10 @@ Taro is a utility belt of functions to work with document files in Julia. It use
  * API to read and write Excel files from Julia
  * Convert `xsl-fo` files to PDFs for automated report generation
 
+##Alternatives
+
+The [ExcelReaders.jl](https://github.com/davidanthoff/ExcelReaders.jl) package also provides Excel file reading functionality. The main difference between the two packages (in terms of Excel functionality) is that [ExcelReaders.jl](https://github.com/davidanthoff/ExcelReaders.jl) uses the Python package [xlrd](https://github.com/python-excel/xlrd) for its processing, whereas Taro uses the Java packages Apache [Tika](http://tika.apache.org/) and Apache [POI](http://poi.apache.org/).
+
 ##Installation
 
 ```
