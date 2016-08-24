@@ -71,7 +71,7 @@ function extract(filename::AbstractString)
 	ContentHandler = @jimport org.xml.sax.ContentHandler
 	jcall(parser, "parse", Void, (InputStream, ContentHandler, Metadata, ParseContext), is, ch, metadata, pc)
 	nm = jcall(metadata, "names", Array{JString,1}, (),)
-    nm = map(bytestring, nm)
+    nm = map(unsafe_string, nm)
     vs=Array(AbstractString, length(nm))
     for i in 1:length(nm)
         vs[i] = jcall(metadata, "get", JString, (JString,), nm[i])

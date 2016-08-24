@@ -17,30 +17,30 @@ An excel Workbook, representing a single file. Wrapper around  the Java class
 `org.apache.poi.ss.usermodel.Workbook`. Constructors of this types are used to
 read existing files, or create new ones.
 """
-typealias Workbook  JavaObject{symbol("org.apache.poi.ss.usermodel.Workbook")}
+typealias Workbook  JavaObject{Symbol("org.apache.poi.ss.usermodel.Workbook")}
 
 """
 An excel Sheet, contained within a workbook. Wrapper around the Java class
 `org.apache.poi.ss.usermodel.Sheet`.
 """
-typealias Sheet  JavaObject{symbol("org.apache.poi.ss.usermodel.Sheet")}
+typealias Sheet  JavaObject{Symbol("org.apache.poi.ss.usermodel.Sheet")}
 
 "A row in a sheet. Contains cells"
-typealias Row  JavaObject{symbol("org.apache.poi.ss.usermodel.Row")}
+typealias Row  JavaObject{Symbol("org.apache.poi.ss.usermodel.Row")}
 
 """A cell within an excel sheet. Most operations to get or set values occur
 on a cell. Wrapper for Java class `org.apache.poi.ss.usermodel.Cell`
 """
-typealias Cell JavaObject{symbol("org.apache.poi.ss.usermodel.Cell")}
+typealias Cell JavaObject{Symbol("org.apache.poi.ss.usermodel.Cell")}
 
 "A Cell style. Wrapper for Java class `org.apache.poi.ss.usermodel.CellStyle`"
-typealias CellStyle JavaObject{symbol("org.apache.poi.ss.usermodel.CellStyle")}
-typealias DataFormat JavaObject{symbol("org.apache.poi.ss.usermodel.DataFormat")}
+typealias CellStyle JavaObject{Symbol("org.apache.poi.ss.usermodel.CellStyle")}
+typealias DataFormat JavaObject{Symbol("org.apache.poi.ss.usermodel.DataFormat")}
 
 
 jFile = @jimport java.io.File
 
-immutable ParseOptions{S <: ByteString}
+immutable ParseOptions{S <: AbstractString}
     header::Bool
     nastrings::Vector{S}
     truestrings::Vector{S}
@@ -85,9 +85,9 @@ skipblanks::Bool = true
 """
 function readxl(filename::AbstractString, sheet, range::AbstractString;
 				   header::Bool = true,
-                   nastrings::Vector = ASCIIString["", "NA"],
-                   truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"],
-                   falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"],
+                   nastrings::Vector = ["", "NA"],
+                   truestrings::Vector = ["T", "t", "TRUE", "true"],
+                   falsestrings::Vector = ["F", "f", "FALSE", "false"],
                    colnames::Vector = Symbol[],
                    coltypes::Vector{Any} = Any[],
                    skipstart::Int = 0,
