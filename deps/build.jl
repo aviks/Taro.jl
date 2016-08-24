@@ -14,7 +14,7 @@ if !isfile(fop_gz)
     download("http://apache.osuosl.org/xmlgraphics/fop/binaries/fop-2.0-bin.tar.gz", fop_gz)
 end
 if !isfile(fop_jar)
-    @unix_only unpack_cmd = `tar xzf $fop_gz --directory=$tdeps`
-    @windows_only unpack_cmd = `7z x $fop_gz -y -so`|>`7z x -si -y -ttar -o$tdeps`
+    if is_unix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
+    if is_windows() unpack_cmd = pipeline(`7z x $fop_gz -y -so`,`7z x -si -y -ttar -o$tdeps`) end
     run(unpack_cmd)
 end
