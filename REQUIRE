@@ -2,4 +2,4 @@ julia 0.4
 JavaCall
 DataFrames
 DataArrays
-Compat
+Compat 0.8
