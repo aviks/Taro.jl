@@ -16,6 +16,9 @@ if !isfile(fop_gz)
 end
 if !isfile(fop_jar)
     if is_unix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
-    if is_windows() unpack_cmd = pipeline(`7z x $fop_gz -y -so`,`7z x -si -y -ttar -o$tdeps`) end
+    if is_windows()
+        exe7z = joinpath(JULIA_HOME, "7z.exe")
+        unpack_cmd = pipeline(`$exe7z x $fop_gz -y -so`,`$exe7z x -si -y -ttar -o$tdeps`)
+    end
     run(unpack_cmd)
 end
