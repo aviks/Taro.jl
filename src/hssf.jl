@@ -17,25 +17,25 @@ An excel Workbook, representing a single file. Wrapper around  the Java class
 `org.apache.poi.ss.usermodel.Workbook`. Constructors of this types are used to
 read existing files, or create new ones.
 """
-typealias Workbook  JavaObject{Symbol("org.apache.poi.ss.usermodel.Workbook")}
+const Workbook = JavaObject{Symbol("org.apache.poi.ss.usermodel.Workbook")}
 
 """
 An excel Sheet, contained within a workbook. Wrapper around the Java class
 `org.apache.poi.ss.usermodel.Sheet`.
 """
-typealias Sheet  JavaObject{Symbol("org.apache.poi.ss.usermodel.Sheet")}
+const Sheet = JavaObject{Symbol("org.apache.poi.ss.usermodel.Sheet")}
 
 "A row in a sheet. Contains cells"
-typealias Row  JavaObject{Symbol("org.apache.poi.ss.usermodel.Row")}
+const Row = JavaObject{Symbol("org.apache.poi.ss.usermodel.Row")}
 
 """A cell within an excel sheet. Most operations to get or set values occur
 on a cell. Wrapper for Java class `org.apache.poi.ss.usermodel.Cell`
 """
-typealias Cell JavaObject{Symbol("org.apache.poi.ss.usermodel.Cell")}
+const Cell = JavaObject{Symbol("org.apache.poi.ss.usermodel.Cell")}
 
 "A Cell style. Wrapper for Java class `org.apache.poi.ss.usermodel.CellStyle`"
-typealias CellStyle JavaObject{Symbol("org.apache.poi.ss.usermodel.CellStyle")}
-typealias DataFormat JavaObject{Symbol("org.apache.poi.ss.usermodel.DataFormat")}
+const CellStyle = JavaObject{Symbol("org.apache.poi.ss.usermodel.CellStyle")}
+const DataFormat = JavaObject{Symbol("org.apache.poi.ss.usermodel.DataFormat")}
 
 
 jFile = @jimport java.io.File
@@ -152,9 +152,9 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 	end
 
 	rows = endrow-startrow +1
-	columns = Array(Any, cols)
+	columns = Array{Any}(cols)
 	for j in startcol:endcol
-		values = Array(Any, rows)
+		values = Array{Any}(rows)
 		missing = falses(rows)
 		for i in startrow:endrow
 			row = getRow(sheet, i)
@@ -398,7 +398,7 @@ function getExcelDate(date::DateTime, use1904windowing::Bool=false)  #->Float64
                           ) / DAY_MILLISECONDS;
         dayStart = DateTime(Dates.year(date), Dates.month(date), Dates.day(date))
         yearStart = use1904windowing?1904:1900
-        value = Int64(Dates.Day(dayStart - DateTime(yearStart, 1, 1))) + 1
+        value = Int64(Dates.value(Dates.Day(dayStart - DateTime(yearStart, 1, 1)))) + 1
 
         if (!use1904windowing && value >= 60)
             value+=1

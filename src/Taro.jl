@@ -51,7 +51,7 @@ function extract(filename::AbstractString)
 	jcall(parser, "parse", Void, (InputStream, ContentHandler, Metadata, ParseContext), is, ch, metadata, pc)
 	nm = jcall(metadata, "names", Array{JString,1}, (),)
     nm = map(unsafe_string, nm)
-    vs=Array(AbstractString, length(nm))
+    vs=Array{String}(length(nm))
     for i in 1:length(nm)
         vs[i] = jcall(metadata, "get", JString, (JString,), nm[i])
     end
