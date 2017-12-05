@@ -17,6 +17,34 @@ df=Taro.readxl("$(joinpath(tdir,"df-test.xlsx"))","Sheet1", "B2:F10")
 @test 5==length(df)
 @test 8==length(df[1])
 
+const writetestfile = "$(joinpath(tdir,"df-test-writexl.xlsx"))"
+
+# specifying sheetnames
+rm(writetestfile; force=true)
+Taro.writexl(writetestfile, [df, df]; sheetnames=["t1", "t2"])
+t1 = Taro.readxl(writetestfile,"t1","A1:E9")
+@test hash(t1) == hash(df)
+t2 = Taro.readxl(writetestfile,"t2","A1:E9")
+@test hash(t2) == hash(df)
+# TODO: figure out why appending to a file causes segfault
+# Taro.writexl(writetestfile, [df]; append=true)
+# t3 = Taro.readxl(writetestfile,2,"A1:E9")
+# @test hash(t3) == hash(df)
+
+# without specifying sheetnames
+rm(writetestfile; force=true)
+Taro.writexl(writetestfile, [df, df])
+# Taro.writexl(writetestfile, [df]; sheetnames=["df3"], append=true)
+t1 = Taro.readxl(writetestfile,0,"A1:E9")
+@test hash(t1) == hash(df)
+t2 = Taro.readxl(writetestfile,1,"A1:E9")
+@test hash(t2) == hash(df)
+# t3 = Taro.readxl(writetestfile,2,"A1:E9")
+# @test hash(t3) == hash(df)
+
+# clean up
+rm(writetestfile; force=true)
+
 #Test Date Routines
 t=now()
 @assert fromExcelDate(getExcelDate(t)) - t == Dates.Millisecond(0)

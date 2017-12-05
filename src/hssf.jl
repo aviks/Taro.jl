@@ -3,7 +3,7 @@
 export Workbook, getSheet, createSheet, getRow, createRow, getCell, createCell,
     getExcelDate, fromExcelDate, getCellType, isCellDateFormatted, setCellValue,
     getCellValue, setCellFormula, getCellFormula, createCellStyle, setCellStyle,
-    setDataFormat
+    setDataFormat, readxl, writexl
 
 const CELL_TYPE_NUMERIC = 0;
 const CELL_TYPE_STRING = 1;
@@ -420,3 +420,55 @@ This is a heuristic, and not guaranteed to be correct.
 isCellDateFormatted(cell::Cell) =
      jcall(@jimport(org.apache.poi.ss.usermodel.DateUtil), "isCellDateFormatted", jboolean, (Cell,), cell) ==
          JavaCall.JNI_TRUE
+
+"write a vector of dataframes to an xlsx file"
+function writexl(filename::AbstractString, dfs::Vector{T}; headers=String[], sheetnames=String[], append::Bool=true) where {T <: DataFrame}
+  try
+    if append && isfile(filename)
+      w=Workbook(filename)
+    else
+      w=Workbook()
+    end
+    for d=1:length(dfs)
+      df=dfs[d]
+      sheetname = isempty(sheetnames) ? "df$d" : sheetnames[d]
+      header = isempty(headers) ? "" : headers[d]
+      info("adding $sheetname sheet $header...")
+      s=createSheet(w, sheetname)
+      nrows,ncols = size(df)
+      colnames=map(string,names(df))
+      headerlines = zero(Integer)
+      if header != ""
+        r=createRow(s, 0)
+        c=createCell(r, 0)
+        setCellValue(c, header)
+        headerlines = 1
+      end
+      r=createRow(s, headerlines)
+      for j=1:ncols
+        if !contains(colnames[j],"spacer")
+          c=createCell(r, j-1)
+          setCellValue(c, colnames[j])
+        end
+      end
+      for i=1:nrows
+        r=createRow(s, headerlines+i)
+        for j=1:ncols
+          cellvalue = df[i,j]
+          if !any(isna(df[i,j]))
+            if typeof(cellvalue) == Symbol
+              cellvalue = string(cellvalue)
+            end
+            c=createCell(r, j-1)
+            setCellValue(c, cellvalue)
+          end
+        end
+      end
+    end
+    write(filename, w)
+    info("wrote all dataframes to $filename.")
+  catch e
+    warn("failed to writexl to $filename")
+    warn("due to exception: $e")
+  end
+end
