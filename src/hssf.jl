@@ -421,7 +421,6 @@ isCellDateFormatted(cell::Cell) =
      jcall(@jimport(org.apache.poi.ss.usermodel.DateUtil), "isCellDateFormatted", jboolean, (Cell,), cell) ==
          JavaCall.JNI_TRUE
 
-"write a vector of dataframes to an xlsx file"
 """
 Write a vector of Julia Dataframes to an Excel file, each representing an Excel Sheet.
 
