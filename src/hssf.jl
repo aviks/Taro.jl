@@ -422,6 +422,21 @@ isCellDateFormatted(cell::Cell) =
          JavaCall.JNI_TRUE
 
 "write a vector of dataframes to an xlsx file"
+"""
+Write a vector of Julia Dataframes to an Excel file, each representing an Excel Sheet.
+
+    filename : path of excel file (.xls or .xlsx)
+    dfs : Vector{DataFrame} with each DataFrame representing a separate Excel Sheet
+
+Optional Arguments.
+```
+headers = String[] a string vector of same length as dfs, to add a first line before the sheet is written
+sheetnames = String[]
+append::Bool = true is supposed to append the DataFrame sheets to an existing excel file, but currently fails often.
+    For now, it is better to make sure no such file exists before using.
+```
+
+"""
 function writexl(filename::AbstractString, dfs::Vector{T}; headers=String[], sheetnames=String[], append::Bool=true) where {T <: DataFrame}
   try
     if append && isfile(filename)
