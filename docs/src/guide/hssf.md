@@ -1,7 +1,9 @@
 #Read and Write Excel Files
 
 The [`Taro.readxl`](@ref) function is a simple, high level method to read tabular data from Excel files into
-a Julia DataFrames. For more control over reading files cell by cell, and for creating or modifyting  excel files,  this package exposes functions to read, create and write workbooks, sheets, rows and cells.
+a Julia DataFrames. 
+Its counterpart, [`Taro.writexl`](@ref) is a simple, high level method to write a vector of DataFrames to an Excel file, each representing an Excel Sheet.
+For more control over reading files cell by cell, and for creating or modifyting  excel files,  this package exposes functions to read, create and write workbooks, sheets, rows and cells.
 The functions are modelled on the underlying POI API (converted to functional form), which in turn is based on the structure of an Excel file.
 
 ```@example
