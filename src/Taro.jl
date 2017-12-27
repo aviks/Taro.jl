@@ -3,7 +3,6 @@ module Taro
 using JavaCall
 using DataFrames
 using DataArrays
-using Compat
 
 tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.10.jar")
 fop_lib = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.0", "lib", "*")
