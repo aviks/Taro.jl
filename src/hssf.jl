@@ -72,9 +72,9 @@ The `header` keyword argument should be set to `false` if no header is present i
 Optional Arguments : similar to `Dataframes.readtable`.
 ```
 header::Bool = true
-nastrings::Vector = ASCIIString["", "NA"]
-truestrings::Vector = ASCIIString["T", "t", "TRUE", "true"]
-falsestrings::Vector = ASCIIString["F", "f", "FALSE", "false"]
+nastrings::Vector = String["", "NA"]
+truestrings::Vector = String["T", "t", "TRUE", "true"]
+falsestrings::Vector = String["F", "f", "FALSE", "false"]
 colnames::Vector = Symbol[]
 coltypes::Vector{Any} = Any[]
 skipstart::Int = 0
@@ -469,7 +469,7 @@ function writexl(filename::AbstractString, dfs::Vector{T}; headers=String[], she
         r=createRow(s, headerlines+i)
         for j=1:ncols
           cellvalue = df[i,j]
-          if !any(isna(df[i,j]))
+          if !any(ismissing(df[i,j]))
             if typeof(cellvalue) == Symbol
               cellvalue = string(cellvalue)
             end
