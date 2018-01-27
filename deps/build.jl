@@ -1,5 +1,3 @@
-using Compat
-
 tdeps = dirname(@__FILE__)
 tika_jar = joinpath(tdeps, "tika-app-1.10.jar")
 if !isfile(tika_jar)
