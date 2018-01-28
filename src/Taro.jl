@@ -4,7 +4,7 @@ using JavaCall
 using DataFrames
 using DataArrays
 
-tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.10.jar")
+tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.17.jar")
 fop_lib = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.0", "lib", "*")
 fop_jar = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.0", "build", "fop.jar")
 
