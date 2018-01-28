@@ -132,25 +132,6 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
     if isnull(sheet); error("Unable to load sheet: $sheetname in file: $filename"); end
     cols = endcol-startcol+1
 
-	if o.header
-		try
-			row = jcall(sheet, "getRow", Row, (jint,), startrow)
-			if !isnull(row)
-				resize!(o.colnames,cols)
-				for j in startcol:endcol
-					cell = jcall(row, "getCell", Cell, (jint,), j)
-					if !isnull(cell)
-						o.colnames[j-startcol+1] = DataFrames.makeidentifier(jcall(cell, "getStringCellValue", JString, (),))
-					end
-				end
-			end
-			startrow = startrow+1
-		catch
-			warn("Tried to read column headers, but failed. Set 'headers=false' if you do not have headers")
-			resize!(o.colnames, 0)
-		end
-	end
-
 	rows = endrow-startrow +1
 	columns = Array{Any}(cols)
 	for j in startcol:endcol
@@ -176,8 +157,24 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 		columns[j-startcol+1] = DataArray(values, missing)
 
 	end
+
 	if isempty(o.colnames)
-        return DataFrame(columns, DataFrames.gennames(cols))
+        #Make df with generic colnames
+        df = DataFrame(columns, DataFrames.gennames(cols))
+
+        if o.header
+
+            n = names(df) #get generic names from df
+
+            #Iterate over first row, if names are string swap into n
+            for (i, item) in enumerate(convert(Array, df[1,:])[1,:])
+                typeof(item) <: String? n[i] = Symbol(item): nothing
+            end
+
+            names!(df, n) #overwrite df names
+
+        end
+        return df[2:end, :] #remove first row after header processed
     else
         return DataFrame(columns, o.colnames)
     end
