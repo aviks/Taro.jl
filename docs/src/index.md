@@ -19,8 +19,8 @@ The [ExcelReaders.jl](https://github.com/davidanthoff/ExcelReaders.jl) package a
 julia> Pkg.add("Taro")
 ```
 
-On installation, the `tika-app-1.4.jar` file will be downloaded from *Maven Central*
-and `fop-2.0` will be downloaded from an Apache mirror.
+On installation, the `tika-app-1.17.jar` file will be downloaded from *Maven Central*
+and `fop-2.2` will be downloaded from an Apache mirror.
 
 ## Usage
 
@@ -31,4 +31,4 @@ This will set up the correct classpath, and initialise the JVM.
  using Taro
  Taro.init()
 ```
-Note: The reason why we do not run init() automatically on module load has to do with the fact that only one embedded JVM can be loaded per process. We need to set the classpath when we start the JVM. Thus, when we load two different packages which both depend on the JVM, we need provide the ability for all packages to modify the Java classpath. 
+Note: The reason why we do not run init() automatically on module load has to do with the fact that only one embedded JVM can be loaded per process. We need to set the classpath when we start the JVM. Thus, when we load two different packages which both depend on the JVM, we need provide the ability for all packages to modify the Java classpath.

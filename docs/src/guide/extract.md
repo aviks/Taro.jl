@@ -5,7 +5,7 @@ Taro includes a few high level functions that extract data from various document
 ##Text extraction
 
 The [`Taro.extract`](@ref) method retrieves document metadata and the body text of a document,
-using [Apache Tika](https://tika.apache.org/). Formats [supported by Tika](https://tika.apache.org/1.13/formats.html)
+using [Apache Tika](https://tika.apache.org/). Formats [supported by Tika](https://tika.apache.org/1.17/formats.html)
 include MS Office and Open Office documents, as well as PDF files.
 
 The function return a Tuple of a Dict and String. The Dict contains name/value pairs of various metadata from the document, while the string contains the body text of the document.
@@ -21,12 +21,12 @@ text[1:53]
 ## Read Excel files into a DataFrame
 
 The [`Taro.readxl`](@ref) method reads a rectangular region from an excel sheet, and
-returns a [Dataframe](http://juliastats.github.io/DataFrames.jl/stable/man/getting_started/#The-DataFrame-Type-1).
+returns a [Dataframe](http://juliadata.github.io/DataFrames.jl/latest/man/getting_started.html#The-DataFrame-Type-1).
 This function takes as an input parameter the name and path of the Excel file to be read. A sheet name (or number) can optionally be supplied. If no sheet information is given, the first sheet (index 0) is read. Finally, this
 function is provided with the rectangular region from which data is extracted. This region is specified as an excel
 range.
 
-This function is similar to, and inspired by, the [readtable](http://juliastats.github.io/DataFrames.jl/stable/man/io/#DataFrames.readtable) function in DataFrames.
+This function is similar to, and inspired by, the [CSV.read/DataFrames.readtable](http://juliadata.github.io/CSV.jl/latest/#CSV.read) function in CSV/DataFrames.
 
 ```@repl
 using Taro # hide
