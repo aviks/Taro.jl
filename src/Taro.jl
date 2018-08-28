@@ -40,7 +40,7 @@ function extract(filename::AbstractString)
 	mimeType = jcall(tika, "detect",JString, (File,), f)
 
 	metadata=Metadata((),)
-	ch=BodyContentHandler((),)
+	ch=BodyContentHandler((jint,),jint(-1))
 	parser=AutoDetectParser((),)
 
 	jcall(metadata, "set", Void, (JString, JString), "Content-Type", mimeType)
