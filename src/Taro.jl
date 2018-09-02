@@ -18,14 +18,15 @@ JavaCall.addOpts("-Djava.awt.headless=true")
 
 init() = JavaCall.init()
 """
-    extract(filename::AbstractString)
+    extract(filename::AbstractString; unsafe = false)
 
 Extract raw text from documents, using Apache Tika.
 Returns a Dict of metadata name value pairs, and a String with the text of the document.
 
-    filename: path of file to read. relative to current directory, or absolute
+    `filename`: path of file to read. relative to current directory, or absolute
+    `unsafe` : If set to true, the full contents of the file is read. If false, returned string is capped at 100 000 characters.
 """
-function extract(filename::AbstractString)
+function extract(filename::AbstractString; unsafe = false)
 	JavaCall.assertloaded()
 	File = @jimport java.io.File
 	f=File((JString,), filename)
@@ -40,7 +41,7 @@ function extract(filename::AbstractString)
 	mimeType = jcall(tika, "detect",JString, (File,), f)
 
 	metadata=Metadata((),)
-	ch=BodyContentHandler((),)
+	ch = unsafe ? BodyContentHandler((jint,),jint(-1)) : BodyContentHandler((),)
 	parser=AutoDetectParser((),)
 
 	jcall(metadata, "set", Void, (JString, JString), "Content-Type", mimeType)
