@@ -5,8 +5,8 @@ if !isfile(tika_jar)
     download("https://apache.osuosl.org/tika/tika-app-1.19.1.jar", tika_jar)
 end
 
-fop_dir = joinpath(tdeps, "fop-2.3")
-fop_jar = joinpath(fop_dir "build", "fop-2.3.jar")
+fop_dir = joinpath(tdeps, "fop-2.3", "fop")
+fop_jar = joinpath(fop_dir, "build", "fop-2.3.jar")
 fop_lib = joinpath(fop_dir, "lib" )
 fop_gz = joinpath(tdeps, "fop-2.3-bin.tar.gz")
 
