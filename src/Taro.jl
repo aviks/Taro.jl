@@ -68,7 +68,6 @@ end
 
 include("hssf.jl")
 include("fop.jl")
-@show JavaCall.opts
 
 
 end # module
