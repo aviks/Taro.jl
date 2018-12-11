@@ -5,12 +5,12 @@ export Workbook, getSheet, createSheet, getRow, createRow, getCell, createCell,
     getCellValue, setCellFormula, getCellFormula, createCellStyle, setCellStyle,
     setDataFormat, readxl, writexl
 
-const CELL_TYPE_NUMERIC = 0;
-const CELL_TYPE_STRING = 1;
-const CELL_TYPE_FORMULA = 2;
-const CELL_TYPE_BLANK = 3;
-const CELL_TYPE_BOOLEAN = 4;
-const CELL_TYPE_ERROR = 5;
+const CELL_TYPE_NUMERIC = "NUMERIC";
+const CELL_TYPE_STRING = "STRING";
+const CELL_TYPE_FORMULA = "FORMULA";
+const CELL_TYPE_BLANK = "BLANK";
+const CELL_TYPE_BOOLEAN = "BOOLEAN";
+const CELL_TYPE_ERROR = "ERROR";
 
 """
 An excel Workbook, representing a single file. Wrapper around  the Java class
@@ -37,10 +37,13 @@ const Cell = JavaObject{Symbol("org.apache.poi.ss.usermodel.Cell")}
 const CellStyle = JavaObject{Symbol("org.apache.poi.ss.usermodel.CellStyle")}
 const DataFormat = JavaObject{Symbol("org.apache.poi.ss.usermodel.DataFormat")}
 
+const CellType = JavaObject{Symbol("org.apache.poi.ss.usermodel.CellType")}
+
+
 
 jFile = @jimport java.io.File
 
-immutable ParseOptions{S <: AbstractString}
+struct ParseOptions{S <: AbstractString}
     header::Bool
     nastrings::Vector{S}
     truestrings::Vector{S}
@@ -132,55 +135,58 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
     if isnull(sheet); error("Unable to load sheet: $sheetname in file: $filename"); end
     cols = endcol-startcol+1
 
-	if o.header
-		try
-			row = jcall(sheet, "getRow", Row, (jint,), startrow)
-			if !isnull(row)
-				resize!(o.colnames,cols)
-				for j in startcol:endcol
-					cell = jcall(row, "getCell", Cell, (jint,), j)
-					if !isnull(cell)
-						o.colnames[j-startcol+1] = DataFrames.makeidentifier(jcall(cell, "getStringCellValue", JString, (),))
-					end
-				end
-			end
-			startrow = startrow+1
-		catch
-			warn("Tried to read column headers, but failed. Set 'headers=false' if you do not have headers")
-			resize!(o.colnames, 0)
-		end
-	end
+	row = getRow(sheet, startrow)
 
-	rows = endrow-startrow +1
-	columns = Array{Any}(cols)
+	resize!(o.colnames,cols)
 	for j in startcol:endcol
-		values = Array{Any}(rows)
-		missing = falses(rows)
-		for i in startrow:endrow
-			row = getRow(sheet, i)
-			if isnull(row); missing[i-startrow+1]=true ; continue; end
+        s=colstring(j)
+        if o.header && !isnull(row)
 			cell = getCell(row, j)
-			if isnull(cell); missing[i-startrow+1]=true ; continue; end
-
-            value = getCellValue(cell)
-			if value == nothing || value in o.nastrings
-				missing[i-startrow+1]=true
-			elseif value in o.truestrings
-				values[i-startrow+1] = true
-			elseif value in o.falsestrings
-				values[i-startrow+1] = false
-			else
-				values[i-startrow+1] = value
+			if !isnull(cell)
+				s = string(getCellValue(cell))
 			end
-		end
-		columns[j-startcol+1] = DataArray(values, missing)
-
+        end
+        if !isempty(s) && Base.is_id_start_char(s[1])
+            map(x->Base.is_id_char(x) ? x : '_', s)
+        end
+        o.colnames[j-startcol+1] = Symbol(s)
 	end
-	if isempty(o.colnames)
-        return DataFrame(columns, DataFrames.gennames(cols))
-    else
-        return DataFrame(columns, o.colnames)
+    if o.header
+		startrow = startrow+1
     end
+
+	rows = endrow-startrow + 1
+
+    coltuple = tuple(o.colnames...)
+    NT = NamedTuple{coltuple, NTuple{cols, Any}}
+    rt = Array{NT,1}()
+    for i in startrow:endrow
+        row = getRow(sheet, i)
+        if isnull(row)
+            nt = NT(tuple(Array{Missing}(missing, cols)))
+            push!(rt, nt)
+        else
+            values = Array{Any}(missing, cols)
+	        for j in startcol:endcol
+			    cell = getCell(row, j)
+			    if isnull(cell); values[j-startcol+1]=missing ; continue; end
+
+                value = getCellValue(cell)
+			    if value == nothing || value in o.nastrings
+				    values[j-startcol+1]=missing
+			    elseif value in o.truestrings
+				    values[j-startcol+1] = true
+			    elseif value in o.falsestrings
+				    values[j-startcol+1] = false
+			    else
+				    values[j-startcol+1] = value
+			    end
+            end
+            nt = NT(tuple(values...))
+            push!(rt, nt)
+		end
+	end
+    return rt
 end
 
 function colnum(col::AbstractString)
@@ -191,6 +197,22 @@ function colnum(col::AbstractString)
 	end
 	return r-1
 end
+
+function colstring(col::Integer)
+       excelColNum = col
+       colRef = IOBuffer()
+       colRemain = excelColNum;
+       while colRemain > 0
+           thisPart = colRemain % 26
+           if(thisPart == 0); thisPart = 26; end
+           colRemain = (colRemain - thisPart) / 26;
+           #The letter A is at 65
+           colChar = Char(thisPart+64);
+           write(colRef, colChar);
+       end
+       return String(reverse!(take!(colRef)));
+   end
+
 
 """
     Workbook(filename::AbstractString)
@@ -237,9 +259,16 @@ getRow(sheet::Sheet, r::Integer) = jcall(sheet, "getRow", Row, (jint,), r)
 Return the type of a cell:
 CELL_TYPE_NUMERIC, CELL_TYPE_STRING, CELL_TYPE_FORMULA, CELL_TYPE_BLANK, CELL_TYPE_BOOLEAN, CELL_TYPE_ERROR
 """
-getCellType(cell::Cell) = jcall(cell, "getCellType", jint, (),)
+function getCellType(cell::Cell)
+    ct = jcall(cell, "getCellType", CellType, (),)
+    return jcall(ct, "name", JString, (), )
+end
 
-getCachedFormulaResultType(cell::Cell) = jcall(cell, "getCachedFormulaResultType", jint, (),)
+function getCachedFormulaResultType(cell::Cell)
+    ct = jcall(cell, "getCachedFormulaResultType", CellType, (),)
+    return jcall(ct, "name", JString, (),)
+end
+
 getBooleanCellValue(cell::Cell) = jcall(cell, "getBooleanCellValue", jboolean, (),) == JavaCall.JNI_TRUE
 getNumericCellValue(cell::Cell) = jcall(cell, "getNumericCellValue", jdouble, (),)
 getStringCellValue(cell::Cell) = jcall(cell, "getStringCellValue", JString, (),)
@@ -282,7 +311,7 @@ function getCellValue(cell::Cell)
     elseif celltype == CELL_TYPE_STRING
         return getStringCellValue(cell)
     else
-        warn("Unknown Cell Type")
+        @warn("Unknown Cell Type")
         return nothing
     end
 end
@@ -294,8 +323,9 @@ Write a workbook to disk.
 """
 function Base.write(filename::AbstractString, w::Workbook)
     fos = @jimport(java.io.FileOutputStream)((JString,), filename)
-    jcall(w, "write", Void, (@jimport(java.io.OutputStream),), fos)
-    jcall(fos, "close", Void,())
+    jcall(w, "write", Cvoid, (@jimport(java.io.OutputStream),), fos)
+    jcall(w, "close", Cvoid, ())
+    jcall(fos, "close", Cvoid, ())
 end
 
 """
@@ -303,9 +333,9 @@ end
 
 Set the value of an excel cell. The value can be a string, a real number, or a Date or DateTime.
 """
-setCellValue(c::Cell, s::AbstractString) = jcall(c, "setCellValue", Void, (JString,), s)
-setCellValue(c::Cell, n::Real) = jcall(c, "setCellValue", Void, (jdouble,), n)
-setCellValue(c::Cell, d::Union{Date, DateTime}) = jcall(c, "setCellValue", Void, (jdouble, ), getExcelDate(d))
+setCellValue(c::Cell, s::AbstractString) = jcall(c, "setCellValue", Cvoid, (JString,), s)
+setCellValue(c::Cell, n::Real) = jcall(c, "setCellValue", Cvoid, (jdouble,), n)
+setCellValue(c::Cell, d::Union{Date, DateTime}) = jcall(c, "setCellValue", Cvoid, (jdouble, ), getExcelDate(d))
 
 """
     setCellFormula(c::Cell, formula::AbstractString)
@@ -316,14 +346,14 @@ The formula string should be what you would expect to enter in excel, but withou
 For example: "A2+2*B2" , "sin(A2)" , "some_user_defined_formula(B2)"
 Note that the formula will be evaluated only when the file is actually opened in Excel.
 """
-setCellFormula(c::Cell, s::AbstractString) = jcall(c, "setCellFormula", Void, (JString, ), s)
+setCellFormula(c::Cell, s::AbstractString) = jcall(c, "setCellFormula", Cvoid, (JString, ), s)
 
 """
     setCellStyle(cell:Cell, style::CellStyle)
 
 Set a style to a cell. The CellStyle object must be created from the workbook
 """
-setCellStyle(cell::Cell, style::CellStyle) = jcall(cell, "setCellStyle", Void, (CellStyle, ), style)
+setCellStyle(cell::Cell, style::CellStyle) = jcall(cell, "setCellStyle", Cvoid, (CellStyle, ), style)
 
 "create a new cell style from a workbook, prior to setting it on a cell"
 createCellStyle(w::Workbook) = jcall(w, "createCellStyle", CellStyle, (),)
@@ -337,7 +367,7 @@ function setDataFormat(w::Workbook, style::CellStyle, f::AbstractString)
     creationHelper = jcall(w, "getCreationHelper", @jimport(org.apache.poi.ss.usermodel.CreationHelper), (), )
     dataFormat = jcall(creationHelper, "createDataFormat", DataFormat, (), )
     format = jcall(dataFormat, "getFormat", jshort, (JString, ), f)
-    jcall(style, "setDataFormat", Void, (jshort, ), format)
+    jcall(style, "setDataFormat", Cvoid, (jshort, ), format)
 end
 
 ### Excel Date related functions
@@ -397,7 +427,7 @@ function getExcelDate(date::DateTime, use1904windowing::Bool=false)  #->Float64
                            ) * 1000 + Dates.millisecond(date)
                           ) / DAY_MILLISECONDS;
         dayStart = DateTime(Dates.year(date), Dates.month(date), Dates.day(date))
-        yearStart = use1904windowing?1904:1900
+        yearStart = use1904windowing ? 1904 : 1900
         value = Int64(Dates.value(Dates.Day(dayStart - DateTime(yearStart, 1, 1)))) + 1
 
         if (!use1904windowing && value >= 60)
@@ -425,7 +455,7 @@ isCellDateFormatted(cell::Cell) =
 Write a vector of Julia Dataframes to an Excel file, each representing an Excel Sheet.
 
     filename : path of excel file (.xls or .xlsx)
-    dfs : Vector{DataFrame} with each DataFrame representing a separate Excel Sheet
+    dfs : A Vector of Table objects with each Table representing a separate Excel Sheet
 
 Optional Arguments.
 ```
@@ -436,8 +466,7 @@ append::Bool = true is supposed to append the DataFrame sheets to an existing ex
 ```
 
 """
-function writexl(filename::AbstractString, dfs::Vector{T}; headers=String[], sheetnames=String[], append::Bool=true) where {T <: DataFrame}
-  try
+function writexl(filename::AbstractString, dfs::Array; headers=String[], sheetnames=String[], append::Bool=true)
     if append && isfile(filename)
       w=Workbook(filename)
     else
@@ -445,13 +474,15 @@ function writexl(filename::AbstractString, dfs::Vector{T}; headers=String[], she
     end
     for d=1:length(dfs)
       df=dfs[d]
-      sheetname = isempty(sheetnames) ? "df$d" : sheetnames[d]
+      sheetname = isempty(sheetnames) ? "Sheet$d" : sheetnames[d]
       header = isempty(headers) ? "" : headers[d]
-      info("adding $sheetname sheet $header...")
+#      @info "adding $sheetname sheet $header..."
       s=createSheet(w, sheetname)
-      nrows,ncols = size(df)
-      colnames=map(string,names(df))
-      headerlines = zero(Integer)
+      sch = Tables.schema(df)
+      colnames=string.(sch.names)
+      ncols = length(colnames)
+      headerlines = 0
+
       if header != ""
         r=createRow(s, 0)
         c=createCell(r, 0)
@@ -460,29 +491,25 @@ function writexl(filename::AbstractString, dfs::Vector{T}; headers=String[], she
       end
       r=createRow(s, headerlines)
       for j=1:ncols
-        if !contains(colnames[j],"spacer")
+        if !occursin("spacer", colnames[j])
           c=createCell(r, j-1)
           setCellValue(c, colnames[j])
         end
       end
-      for i=1:nrows
+      for (i, row) in enumerate(Tables.rows(df))
         r=createRow(s, headerlines+i)
-        for j=1:ncols
-          cellvalue = df[i,j]
-          if !any(ismissing(df[i,j]))
+        Tables.eachcolumn(sch, row) do val, j, name
+          cellvalue = val
+          if cellvalue !== missing
             if typeof(cellvalue) == Symbol
               cellvalue = string(cellvalue)
             end
-            c=createCell(r, j-1)
+            c=createCell(r, j - 1)
             setCellValue(c, cellvalue)
           end
         end
       end
     end
     write(filename, w)
-    info("wrote all dataframes to $filename.")
-  catch e
-    warn("failed to writexl to $filename")
-    warn("due to exception: $e")
-  end
+    @info("wrote all tables to $filename.")
 end

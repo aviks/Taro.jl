@@ -1,5 +1,6 @@
 deps/*.jar
-deps/fop-2.0
+deps/fop*
+deps/build.log
 deps/*.tar.gz
 test/simple.pdf
 .DS_Store

@@ -1,5 +1,8 @@
-using Base.Test
+using Test
 using Taro
+using Dates
+using DataFrames
+using JavaCall
 
 tdir = dirname(@__FILE__)
 Taro.init()
@@ -13,7 +16,9 @@ meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.pdf"))")
 @test length(keys(meta)) > 30
 @test length(body)>3000
 
-df=Taro.readxl("$(joinpath(tdir,"df-test.xlsx"))","Sheet1", "B2:F10")
+nt=Taro.readxl("$(joinpath(tdir,"df-test.xlsx"))","Sheet1", "B2:F10")
+
+df = DataFrame(nt)
 @test 5==length(df)
 @test 8==length(df[1])
 
@@ -23,9 +28,9 @@ const writetestfile = "$(joinpath(tdir,"df-test-writexl.xlsx"))"
 rm(writetestfile; force=true)
 Taro.writexl(writetestfile, [df, df]; sheetnames=["t1", "t2"])
 t1 = Taro.readxl(writetestfile,"t1","A1:E9")
-@test hash(t1) == hash(df)
+@test hash(DataFrame(t1)) == hash(df)
 t2 = Taro.readxl(writetestfile,"t2","A1:E9")
-@test hash(t2) == hash(df)
+@test hash(DataFrame(t2)) == hash(df)
 # TODO: figure out why appending to a file causes segfault
 # Taro.writexl(writetestfile, [df]; append=true)
 # t3 = Taro.readxl(writetestfile,2,"A1:E9")
@@ -36,9 +41,9 @@ rm(writetestfile; force=true)
 Taro.writexl(writetestfile, [df, df])
 # Taro.writexl(writetestfile, [df]; sheetnames=["df3"], append=true)
 t1 = Taro.readxl(writetestfile,0,"A1:E9")
-@test hash(t1) == hash(df)
+@test hash(DataFrame(t1)) == hash(df)
 t2 = Taro.readxl(writetestfile,1,"A1:E9")
-@test hash(t2) == hash(df)
+@test hash(DataFrame(t2)) == hash(df)
 # t3 = Taro.readxl(writetestfile,2,"A1:E9")
 # @test hash(t3) == hash(df)
 
@@ -46,7 +51,7 @@ t2 = Taro.readxl(writetestfile,1,"A1:E9")
 rm(writetestfile; force=true)
 
 #Test Date Routines
-t=now()
+t=Dates.now()
 @assert fromExcelDate(getExcelDate(t)) - t == Dates.Millisecond(0)
 
 #Workbook
