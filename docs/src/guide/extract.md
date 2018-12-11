@@ -1,8 +1,8 @@
-#Data Extraction
+# Data Extraction
 
 Taro includes a few high level functions that extract data from various document formats.
 
-##Text extraction
+## Text extraction
 
 The [`Taro.extract`](@ref) method retrieves document metadata and the body text of a document,
 using [Apache Tika](https://tika.apache.org/). Formats [supported by Tika](https://tika.apache.org/1.13/formats.html)
