@@ -19,8 +19,8 @@ meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.pdf"))")
 nt=Taro.readxl("$(joinpath(tdir,"df-test.xlsx"))","Sheet1", "B2:F10")
 
 df = DataFrame(nt)
-@test 5==length(df)
-@test 8==length(df[1])
+@test 5==size(df,2)
+@test 8==size(df, 1)
 
 const writetestfile = "$(joinpath(tdir,"df-test-writexl.xlsx"))"
 

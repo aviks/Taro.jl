@@ -139,17 +139,17 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
 
 	resize!(o.colnames,cols)
 	for j in startcol:endcol
-        s=colstring(j)
+        hs=colstring(j)
         if o.header && !isnull(row)
 			cell = getCell(row, j)
 			if !isnull(cell)
 				s = string(getCellValue(cell))
+                if !isempty(s) && Base.is_id_start_char(s[1])
+                    hs = map(x->Base.is_id_char(x) ? x : '_', s)
+                end
 			end
         end
-        if !isempty(s) && Base.is_id_start_char(s[1])
-            map(x->Base.is_id_char(x) ? x : '_', s)
-        end
-        o.colnames[j-startcol+1] = Symbol(s)
+        o.colnames[j-startcol+1] = Symbol(hs)
 	end
     if o.header
 		startrow = startrow+1
@@ -186,9 +186,15 @@ function readxl(filename::AbstractString, sheetname, startrow::Int, startcol::In
             push!(rt, nt)
 		end
 	end
+    jcall(book, "close", Cvoid, ())
     return rt
 end
 
+"""
+Return the integer column number given a character column
+    eg: A -> 1
+        AA -> 27
+"""
 function colnum(col::AbstractString)
 	cl=uppercase(col)
 	r=0
@@ -198,6 +204,11 @@ function colnum(col::AbstractString)
 	return r-1
 end
 
+"""
+  Return the character refrence of an integer column number
+    eg. 1 -> A
+        27 -> AA
+"""
 function colstring(col::Integer)
        excelColNum = col
        colRef = IOBuffer()
