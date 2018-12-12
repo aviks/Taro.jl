@@ -1,7 +1,7 @@
 tdeps = dirname(@__FILE__)
 tika_jar = joinpath(tdeps, "tika-app-1.19.jar")
 if !isfile(tika_jar)
-    @info "  Downloading tika-app-1.17.jar from Maven Central"
+    @info "  Downloading tika-app-1.17.jar from Apache OSUOSL Mirror"
     download("https://apache.osuosl.org/tika/tika-app-1.19.1.jar", tika_jar)
 end
 
@@ -17,7 +17,7 @@ end
 if !isfile(fop_jar)
     if Sys.isunix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
     if Sys.iswindows()
-        exe7z = joinpath(JULIA_HOME, "7z.exe")
+        exe7z = joinpath(Sys.BINDIR, "7z.exe")
         unpack_cmd = pipeline(`$exe7z x $fop_gz -y -so`,`$exe7z x -si -y -ttar -o$tdeps`)
     end
     run(unpack_cmd)
