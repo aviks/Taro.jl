@@ -1,3 +1,4 @@
+# Creating PDF documents using FOP
 Taro has an interface to the `Apache FOP` project. This allows you to generate professional quality PDF files from `XSL-FO` layout definition templates. Please see the [FOP Documentation](https://xmlgraphics.apache.org/fop/) for details.
 
 The [`Taro.fo`](@ref) function take two parameters: an input FO file name, and an output PDF file name, and creates the latter from the former. The FO file is usually created by injecting dynamic data into a template. 

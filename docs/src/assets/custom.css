@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono');
+
+
+pre, code {
+  font-family: 'Ubuntu Mono', monospace !important;
+  font-size: 0.95em;
+}
+
+pre {
+    padding: 1.5em;
+}
+
+code {
+    padding: 0.1em 0.25em;
+}
+
+body {
+    font-family: 'Ubuntu';
+    color: rgba(0,0,0,.87);
+}
+
+
+li > p {
+    margin: 0;
+}
+li {
+    margin: 0.5em 0;
+}
+a {
+    color: #e84e40;
+}
+
+a:hover {
+    color: #00bfa5;
+}
+
+#version-selector {
+    display: none;
+}
+#search-query {
+    background-color: #fff;
+    border: 1px solid #e84e40;
+    border-radius: 8px;
+    height: 32px;
+}
+nav.toc ul a.toctext {
+    color: #e84e40;
+}
+nav.toc {
+    background: #fff;
+    box-shadow: none;
+}
+
+#docs header hr {
+    display: none;
+}
+
+
+nav.toc li.current > .toctext {
+    color: #e84e40;
+    border: none;
+    border-bottom: 1px solid #e84e40;
+}
+nav.toc ul.internal {
+    background: #ffffff;
+    box-shadow: none;
+}
+/*nav.toc ul.internal a.toctext {
+    color: #0B486B;
+}*/
+nav.toc ul.internal a.toctext:hover {
+    background: #fff;
+    color: #e84e40;
+}
+
+h2 {
+    margin-top: 32px;
+    font-size: 1.66em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e84e40;
+}
+.toc h1 {
+    font-size: 40px;
+    font-family: Ubuntu;
+    color: #e84e40;
+}
+h2 a.nav-anchor, h2 a.nav-anchor:visited {
+    color: #e84e40;
+}
+h3 a.nav-anchor, h3 a.nav-anchor:visited, h2 a.nav-anchor:hover {
+    color: #e84e40;
+}
+
+p {
+    line-height: 1.66em;
+}

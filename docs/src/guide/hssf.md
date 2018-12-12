@@ -1,4 +1,4 @@
-#Read and Write Excel Files
+# Read and Write Excel Files
 
 The [`Taro.readxl`](@ref) function is a simple, high level method to read tabular data from Excel files into
 a Julia DataFrames. 
