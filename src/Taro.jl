@@ -1,22 +1,26 @@
 module Taro
 
+using Dates
 using JavaCall
-using DataFrames
-using DataArrays
+using Tables
 
-tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.17.jar")
-fop_lib = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.0", "lib", "*")
-fop_jar = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.0", "build", "fop.jar")
-
-JavaCall.addClassPath(tika_jar)
-JavaCall.addClassPath(fop_lib)
-JavaCall.addClassPath(fop_jar)
+tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.20.jar")
+fop_lib = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.3", "fop", "lib", "*")
+fop_jar = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.3","fop", "build", "fop.jar")
 
 
-JavaCall.addOpts("-Xmx256M")
-JavaCall.addOpts("-Djava.awt.headless=true")
+function __init__()
+    JavaCall.addClassPath(tika_jar)
+    JavaCall.addClassPath(fop_lib)
+    JavaCall.addClassPath(fop_jar)
+    JavaCall.addOpts("-Xmx256M")
+    JavaCall.addOpts("-Djava.awt.headless=true")
+end
+
 
 init() = JavaCall.init()
+
+
 """
     extract(filename::AbstractString; unsafe = false)
 
@@ -44,14 +48,14 @@ function extract(filename::AbstractString; unsafe = false)
 	ch = unsafe ? BodyContentHandler((jint,),jint(-1)) : BodyContentHandler((),)
 	parser=AutoDetectParser((),)
 
-	jcall(metadata, "set", Void, (JString, JString), "Content-Type", mimeType)
+	jcall(metadata, "set", Cvoid, (JString, JString), "Content-Type", mimeType)
 	ParseContext = @jimport org.apache.tika.parser.ParseContext
 	pc = ParseContext((),)
 	ContentHandler = @jimport org.xml.sax.ContentHandler
-	jcall(parser, "parse", Void, (InputStream, ContentHandler, Metadata, ParseContext), is, ch, metadata, pc)
+	jcall(parser, "parse", Cvoid, (InputStream, ContentHandler, Metadata, ParseContext), is, ch, metadata, pc)
 	nm = jcall(metadata, "names", Array{JString,1}, (),)
     nm = map(unsafe_string, nm)
-    vs=Array{String}(length(nm))
+    vs=Array{String}(undef, length(nm))
     for i in 1:length(nm)
         vs[i] = jcall(metadata, "get", JString, (JString,), nm[i])
     end
@@ -61,8 +65,6 @@ function extract(filename::AbstractString; unsafe = false)
     return Dict(zip(nm, vs)) , body
 
 end
-
-
 
 include("hssf.jl")
 include("fop.jl")

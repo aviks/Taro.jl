@@ -38,6 +38,6 @@ function fo(input::AbstractString, output::AbstractString)
     handler = jcall(fop, "getDefaultHandler", @jimport(org.xml.sax.helpers.DefaultHandler), ())
     res = SAXResult((@jimport(org.xml.sax.ContentHandler),), handler)
 
-    jcall(transformer, "transform", Void, (Source, Result), src, res)
-    jcall(bout, "close", Void, ())
+    jcall(transformer, "transform", Cvoid, (Source, Result), src, res)
+    jcall(bout, "close", Cvoid, ())
 end
