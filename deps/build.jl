@@ -1,8 +1,8 @@
 tdeps = dirname(@__FILE__)
-tika_jar = joinpath(tdeps, "tika-app-1.19.jar")
+tika_jar = joinpath(tdeps, "tika-app-1.20.jar")
 if !isfile(tika_jar)
-    @info "  Downloading tika-app-1.17.jar from Apache OSUOSL Mirror"
-    download("https://apache.osuosl.org/tika/tika-app-1.19.1.jar", tika_jar)
+    @info "  Downloading tika-app-1.20.jar from Apache OSUOSL Mirror"
+    download("https://apache.osuosl.org/tika/tika-app-1.20.jar", tika_jar)
 end
 
 fop_dir = joinpath(tdeps, "fop-2.3", "fop")
