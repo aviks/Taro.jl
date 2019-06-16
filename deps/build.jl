@@ -1,7 +1,7 @@
 tdeps = dirname(@__FILE__)
 tika_jar = joinpath(tdeps, "tika-app-1.21.jar")
 if !isfile(tika_jar)
-    @info "  Downloading tika-app-1.20.jar from Apache OSUOSL Mirror"
+    @info "  Downloading tika-app-1.21.jar from Apache OSUOSL Mirror"
     download("https://apache.osuosl.org/tika/tika-app-1.21.jar", tika_jar)
 end
 
