@@ -1,8 +1,8 @@
 tdeps = dirname(@__FILE__)
-tika_jar = joinpath(tdeps, "tika-app-1.20.jar")
+tika_jar = joinpath(tdeps, "tika-app-1.23.jar")
 if !isfile(tika_jar)
-    @info "  Downloading tika-app-1.20.jar from Apache OSUOSL Mirror"
-    download("https://apache.osuosl.org/tika/tika-app-1.20.jar", tika_jar)
+    @info "  Downloading tika-app-1.23.jar from Apache OSUOSL Mirror"
+    download("https://apache.osuosl.org/tika/tika-app-1.23.jar", tika_jar)
 end
 
 fop_dir = joinpath(tdeps, "fop-2.3", "fop")
@@ -17,7 +17,11 @@ end
 if !isfile(fop_jar)
     if Sys.isunix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
     if Sys.iswindows()
-        exe7z = joinpath(Sys.BINDIR, "7z.exe")
+        if isdefined(Base, :LIBEXECDIR)
+          const exe7z = joinpath(Sys.BINDIR, Base.LIBEXECDIR, "7z.exe")
+        else
+          const exe7z = joinpath(Sys.BINDIR, "7z.exe")
+        end
         unpack_cmd = pipeline(`$exe7z x $fop_gz -y -so`,`$exe7z x -si -y -ttar -o$tdeps`)
     end
     run(unpack_cmd)
