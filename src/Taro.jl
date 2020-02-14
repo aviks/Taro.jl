@@ -4,7 +4,7 @@ using Dates
 using JavaCall
 using Tables
 
-tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.20.jar")
+tika_jar = joinpath(dirname(@__FILE__), "..", "deps", "tika-app-1.23.jar")
 fop_lib = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.3", "fop", "lib", "*")
 fop_jar = joinpath(dirname(@__FILE__), "..", "deps", "fop-2.3","fop", "build", "fop.jar")
 
