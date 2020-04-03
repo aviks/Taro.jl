@@ -1,8 +1,8 @@
 tdeps = dirname(@__FILE__)
 tika_jar = joinpath(tdeps, "tika-app-1.23.jar")
 if !isfile(tika_jar)
-    @info "  Downloading tika-app-1.23.jar from Apache OSUOSL Mirror"
-    download("https://apache.osuosl.org/tika/tika-app-1.23.jar", tika_jar)
+    @info "  Downloading tika-app-1.23.jar from Apache Archive"
+    download("https://archive.apache.org/dist/tika/tika-app-1.23.jar", tika_jar)
 end
 
 fop_dir = joinpath(tdeps, "fop-2.3", "fop")
@@ -11,8 +11,8 @@ fop_lib = joinpath(fop_dir, "lib" )
 fop_gz = joinpath(tdeps, "fop-2.3-bin.tar.gz")
 
 if !isfile(fop_gz)
-    @info "  Downloading fop-2.3 binary from Apache OSUOSL Mirror"
-    download("https://apache.osuosl.org/xmlgraphics/fop/binaries/fop-2.3-bin.tar.gz", fop_gz)
+    @info "  Downloading fop-2.3 binary from Apache Archive"
+    download("https://archive.apache.org/dist/xmlgraphics/fop/binaries/fop-2.3-bin.tar.gz", fop_gz)
 end
 if !isfile(fop_jar)
     if Sys.isunix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
