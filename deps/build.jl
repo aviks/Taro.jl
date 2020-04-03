@@ -11,8 +11,8 @@ fop_lib = joinpath(fop_dir, "lib" )
 fop_gz = joinpath(tdeps, "fop-2.3-bin.tar.gz")
 
 if !isfile(fop_gz)
-    @info "  Downloading fop-2.3 binary from Apache Archive"
-    download("https://archive.apache.org/dist/xmlgraphics/fop/binaries/fop-2.3-bin.tar.gz", fop_gz)
+    @info "  Downloading fop-2.3 binary from Apache OSUOSL Mirror"
+    download("https://apache.osuosl.org/xmlgraphics/fop/binaries/fop-2.3-bin.tar.gz", fop_gz)
 end
 if !isfile(fop_jar)
     if Sys.isunix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
