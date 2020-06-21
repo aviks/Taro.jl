@@ -5,6 +5,10 @@ using DataFrames
 using JavaCall
 
 tdir = dirname(@__FILE__)
+tempxlsx = tempname()*".xlsx"
+cp("$(joinpath(tdir,"df-test.xlsx"))",tempxlsx)
+chmod(tempxlsx,0o600)
+
 Taro.init()
 
 meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.docx"))")
@@ -16,7 +20,7 @@ meta, body=Taro.extract("$(joinpath(tdir,"WhyJulia.pdf"))")
 @test length(keys(meta)) > 30
 @test length(body)>3000
 
-nt=Taro.readxl("$(joinpath(tdir,"df-test.xlsx"))","Sheet1", "B2:F10")
+nt=Taro.readxl(tempxlsx,"Sheet1", "B2:F10")
 
 df = DataFrame(nt)
 @test 5==size(df,2)
@@ -90,6 +94,7 @@ c2 = getCell(r2, 5)
 try
     rm("$(joinpath(tdir,"simple.pdf"))")
     rm(joinpath(dirname(@__FILE__), "write-tests.xlsx"))
+    rm(tempxlsx)
 catch
 end
 
