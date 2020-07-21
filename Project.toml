@@ -1,6 +1,6 @@
 name = "Taro"
 uuid = "61d0e4fa-4e73-5030-88a9-ae4c27b203dd"
-version = "0.8.1"
+version = "0.8.2"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
