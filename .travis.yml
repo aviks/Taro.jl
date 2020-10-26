@@ -1,8 +1,44 @@
 language: julia
 os:
   - linux
+  - osx
+  - windows
+dist: bionic
+before_install:
+  - source ${TRAVIS_BUILD_DIR}/test/windows_java.sh
 julia:
   - 1.0
+  - 1
   - nightly
+
+env:
+  - JULIA_COPY_STACKS=0
+  - JULIA_COPY_STACKS=1
+
+jobs:
+  include:
+  - julia: 1
+    env: JULIA_COPY_STACKS=1 JAVA_HOME=/usr/local/lib/jvm/openjdk8
+    os: linux
+  - julia: 1
+    env: JULIA_COPY_STACKS=1 JAVA_HOME=/usr/local/lib/jvm/openjdk11
+    os: linux
+  - julia: 1
+    env: JULIA_COPY_STACKS=1
+    os: osx
+    osx_image: xcode9.3
+  - julia: 1
+    env: JULIA_COPY_STACKS=0 JAVA_PKG=openjdk8
+    os: windows
+  exclude:
+  - julia: 1.0
+    env: JULIA_COPY_STACKS=0
+  - julia: 1.0
+    os: windows
+    env: JULIA_COPY_STACKS=1
+  allow_failures:
+  - julia: nightly
+  - os: windows
+    env: JULIA_COPY_STACKS=1
 notifications:
   email: false
