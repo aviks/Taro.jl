@@ -1,3 +1,5 @@
+using p7zip_jll
+
 tdeps = dirname(@__FILE__)
 tika_jar = joinpath(tdeps, "tika-app-1.23.jar")
 if !isfile(tika_jar)
@@ -17,11 +19,7 @@ end
 if !isfile(fop_jar)
     if Sys.isunix() unpack_cmd = `tar xzf $fop_gz --directory=$tdeps` end
     if Sys.iswindows()
-        if isdefined(Base, :LIBEXECDIR)
-          const exe7z = joinpath(Sys.BINDIR, Base.LIBEXECDIR, "7z.exe")
-        else
-          const exe7z = joinpath(Sys.BINDIR, "7z.exe")
-        end
+        const exe7z = p7zip_jll.p7zip()
         unpack_cmd = pipeline(`$exe7z x $fop_gz -y -so`,`$exe7z x -si -y -ttar -o$tdeps`)
     end
     run(unpack_cmd)
